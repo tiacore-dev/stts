@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.database import init_db, set_db_globals
 from app.s3 import init_s3_manager
-from password import admin
 from app.routes import register_routes
 from app.openai import init_openai
 from app.utils.logger import setup_logger   # Импортируем логгер
@@ -34,7 +33,6 @@ def create_app():
     try:
         engine, Session, Base = init_db(database_url)
         set_db_globals(engine, Session, Base)
-        #admin('admin', 'admin', 'admin')
         logger=setup_logger()
         logger.info("База данных успешно инициализирована.", extra={'user_id': 'init'})
     except Exception as e:
