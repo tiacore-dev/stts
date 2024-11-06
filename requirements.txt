@@ -2,7 +2,6 @@ Flask
 Flask-JWT-Extended
 Flask-WTF
 SQLAlchemy
-logging
 werkzeug
 os
 python-dotenv
