@@ -9,5 +9,7 @@ flask-restx
 flask-cors
 psycopg2-binary
 alembic
+boto3
+
 #aiobotocore 
 #aiohttp
