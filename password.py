@@ -5,9 +5,9 @@ from app.database import init_db, set_db_globals
 load_dotenv()
 
 password=os.getenv('PASSWORD')
-username=os.getenv('LOGIN')
+login=os.getenv('LOGIN')
 database_url = os.getenv('DATABASE_URL')
-
+username='admin'
 engine, Session, Base = init_db(database_url)
 
     # Установка глобальных переменных для работы с базой данных
@@ -18,8 +18,8 @@ from app.database.managers.user_manager import UserManager
 db = UserManager()
 
 
-if db.user_exists(username):
-    db.delete_user(username)
+if db.user_exists(login):
+    db.delete_user(login)
 
-db.add_user(username, password)
+db.add_user(username, login, password, user_type='admin')
 print('New admin added successfully')

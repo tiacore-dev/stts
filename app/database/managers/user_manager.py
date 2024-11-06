@@ -81,3 +81,19 @@ class UserManager:
             # Закрываем сессию в блоке finally, чтобы гарантировать закрытие независимо от результата запроса
             session.close()
         
+    def delete_user(self, login):
+        """Удаление пользователя по user_id"""
+        session = self.Session()
+        try:
+            # Ищем пользователя по user_id
+            user = session.query(User).filter_by(login=login).first()
+            if user:
+                # Если пользователь найден, удаляем его из сессии
+                session.delete(user)
+                session.commit()
+                return True
+            else:
+                return False  # Если пользователь не найден, возвращаем False
+        finally:
+            # Закрываем сессию в блоке finally, чтобы гарантировать закрытие независимо от результата
+            session.close()
