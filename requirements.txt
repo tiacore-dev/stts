@@ -1,0 +1,15 @@
+Flask
+Flask-JWT-Extended
+Flask-WTF
+SQLAlchemy
+logging
+werkzeug
+os
+python-dotenv
+requests
+flask-restx
+flask-cors
+psycopg2-binary
+alembic
+#aiobotocore 
+#aiohttp
