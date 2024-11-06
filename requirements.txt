@@ -3,7 +3,6 @@ Flask-JWT-Extended
 Flask-WTF
 SQLAlchemy
 werkzeug
-os
 python-dotenv
 requests
 flask-restx
