@@ -8,6 +8,8 @@ from app.s3 import init_s3_manager
 from app.routes import register_routes
 from app.openai import init_openai
 from app.utils.logger import setup_logger   # Импортируем логгер
+from flask_socketio import SocketIO
+import eventlet
 
 load_dotenv()
 
@@ -70,10 +72,6 @@ def create_app():
         raise
 
 
-
-
-    
-
     # Инициализация OpenAI
     try:
         init_openai(app)
@@ -90,6 +88,10 @@ def create_app():
         logger.error(f"Ошибка при инициализации s3 хранилища: {e}", extra={'user_id': 'init'})
         raise
 
+
+     # Инициализация SocketIO
+    socketio = SocketIO(app, async_mode='eventlet')
+
     # Регистрация маршрутов
     try:
         register_routes(app)
@@ -101,4 +103,4 @@ def create_app():
 
     
 
-    return app
+    return app, socketio

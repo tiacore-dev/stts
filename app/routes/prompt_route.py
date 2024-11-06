@@ -49,7 +49,7 @@ def add_prompt():
     except Exception as e:
         logger.error(f"Ошибка при добавлении промпта: {e}", extra={'user_id': current_user['login']})
         flash('An error occurred while adding the prompt', 'danger')
-    return jsonify({"message": "Prompt added successfully", "prompt_id": prompt_id}), 200 #redirect(url_for('prompt.manage_prompts'))
+    return jsonify({"message": "Prompt added successfully", "prompt_id": prompt_id}), 200 
 
 
 

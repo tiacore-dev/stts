@@ -12,6 +12,10 @@ alembic
 boto3
 pydub
 openai
-
 #aiobotocore 
+aiboto3
+flask-socketio
+eventlet
+asyncio
+"flask[async]"
 #aiohttp

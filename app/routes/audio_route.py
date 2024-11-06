@@ -3,6 +3,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import Response, jsonify
 import os
 import logging
+import asyncio
+from app.utils.upload_audio import process_and_upload_file
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
 
@@ -12,45 +14,41 @@ audio_bp = Blueprint('audio', __name__)
 # Загрузка аудиофайла
 @audio_bp.route('/audio/upload', methods=['POST'])
 @jwt_required()
-def upload_audio():
-    from app.database.managers.audio_manager import AudioFileManager
-    from app.s3 import get_s3_manager, get_bucket_name
-
-    db = AudioFileManager()
-    s3_manager = get_s3_manager()
-    bucket_name = get_bucket_name()
-    current_user = get_jwt_identity()
-    logger.info(f"Пользователь {current_user} пытается загрузить аудиофайл.", extra={'user_id': current_user['login']})
-
-    file = request.files.get('file')
+async def upload_audio():
     
-    if not file:
-        logger.error(f"Пользователь {current_user} не выбрал файл для загрузки.", extra={'user_id': current_user['login']})
-        return jsonify({'error': 'No file provided'}), 400
+    current_user = get_jwt_identity()
 
-    file_name_input = request.form.get('fileName')  # Имя файла от пользователя
-    file_extension = os.path.splitext(file.filename)[1]  # Получаем расширение файла
-    # Генерируем полное имя файла с расширением
-    full_file_name = f"{file_name_input}{file_extension}"
+    # Получение файла из запроса
+    files = request.files.getlist('files')  # Получаем список файлов из формы
 
-    # Заменяем пробелы на нижние подчеркивания для s3_key
-    s3_key = full_file_name.replace(' ', '_')
+    if not files:
+        logger.error(f"Пользователь {current_user} не выбрал файлы для загрузки.", extra={'user_id': current_user['login']})
+        return jsonify({'error': 'No files provided'}), 400
 
-    file_size = file.content_length  # Получаем размер файла напрямую
-    logger.info(f"Файл для загрузки: {full_file_name} (размер: {file_size} байт)", extra={'user_id': current_user['login']})
+    tasks = []  # Список задач для асинхронной обработки
 
-    try:
-        logger.info(f'Попытка загрузки аудио в бакет: {bucket_name}', extra={'user_id': current_user['login']})
+    for file in files:
+        # Генерация имени файла и подготовка данных для загрузки
+        file_name_input = request.form.get('fileName', 'default_name')  # Имя файла от пользователя
+        file_extension = os.path.splitext(file.filename)[1]  # Получаем расширение файла
+        full_file_name = f"{file_name_input}{file_extension}"
+        s3_key = full_file_name.replace(' ', '_')
+        file_size = file.content_length  # Получаем размер файла
 
-        # Загрузка файла в S3 напрямую из объекта файла
-        s3_manager.upload_fileobj(file, bucket_name, s3_key)  # Используем s3_key с нижними подчеркиваниями
-        audio_id = db.add_audio_file(current_user['user_id'], file_name_input, file_extension, file_size, bucket_name, s3_key)  # Сохраняем данные в БД
-        logger.info(f"Файл {full_file_name} успешно загружен в S3.", extra={'user_id': current_user['login']})
+        tasks.append(process_and_upload_file(file,  s3_key, current_user, file_name_input, file_extension, file_size))
 
-        return jsonify({'message': 'File uploaded successfully', 'audio_id': audio_id}), 200
-    except Exception as e:
-        logger.error(f"Ошибка при загрузке файла: {e}", extra={'user_id': current_user['login']})
-        return jsonify({'error': 'File upload failed'}), 500
+    # Асинхронно обрабатываем все файлы
+    results = await asyncio.gather(*tasks)
+
+    # Составляем ответ
+    success_files = [result for result in results if result['status'] == 'success']
+    error_files = [result for result in results if result['status'] == 'error']
+
+    return jsonify({
+        'success_files': success_files,
+        'error_files': error_files
+    }), 200
+
 
 
 
@@ -129,7 +127,7 @@ def delete_file(audio_id):
 
 @audio_bp.route('/audio/<audio_id>/download', methods=['GET'])
 @jwt_required()
-def download_file_bytes():
+async def download_file_bytes():
     from app.database.managers.audio_manager import AudioFileManager
     db = AudioFileManager()
     from app.s3 import get_s3_manager, get_bucket_name
@@ -153,7 +151,7 @@ def download_file_bytes():
 
     try:
         # Получаем файл из S3
-        audio_bytes = s3_manager.get_file(bucket_name, file_record.s3_key)
+        audio_bytes = await s3_manager.get_file(bucket_name, file_record.s3_key)
         if audio_bytes is None:
             logger.error(f"Не удалось получить содержимое файла '{audio_id}' из S3.", extra={'user_id': current_user['login']})
             return jsonify({'error': 'Could not retrieve audio file'}), 500
@@ -166,7 +164,7 @@ def download_file_bytes():
 
 @audio_bp.route('/audio/<audio_id>/download_url', methods=['GET'])
 @jwt_required()
-def download_file(audio_id):
+async def download_file(audio_id):
     from app.database.managers.audio_manager import AudioFileManager
     db = AudioFileManager()
     from app.s3 import get_s3_manager, get_bucket_name
@@ -184,7 +182,7 @@ def download_file(audio_id):
         return jsonify({'error': 'File not found or access denied'}), 404
 
     # Генерируем временный URL для скачивания файла
-    url = s3_manager.generate_presigned_url(bucket_name, file_record.s3_key)
+    url = await s3_manager.generate_presigned_url(bucket_name, file_record.s3_key)
 
     if url:
         return jsonify({'url': url}), 200
