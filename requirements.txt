@@ -10,6 +10,8 @@ flask-cors
 psycopg2-binary
 alembic
 boto3
-
+pydub
+openai
+io
 #aiobotocore 
 #aiohttp
