@@ -11,10 +11,9 @@ from app.models.logs import Logs
 from app.models.analysis import Analysis
 from app.models.api_keys import APIKeys
 
-def init_db(app):
-    DATABASE_URL = app.config['SQLALCHEMY_DATABASE_URI']
+def init_db(database_url):
     
-    engine = create_engine(DATABASE_URL, echo=False)
+    engine = create_engine(database_url, echo=False)
     Session = sessionmaker(bind=engine)
     # Создание всех таблиц
     Base.metadata.create_all(engine)

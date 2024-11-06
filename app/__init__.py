@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.database import init_db, set_db_globals
 from app.s3 import init_s3_manager
-from admin import admin
+from password import admin
 from app.routes import register_routes
 from app.openai import init_openai
 from app.utils.logger import setup_logger   # Импортируем логгер
@@ -23,6 +23,7 @@ def create_app():
     # Настройки приложения
     try:
         app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+        database_url=os.getenv('DATABASE_URL')
         app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
         #logger.info("Настройки приложения загружены.")
     except Exception as e:
@@ -31,7 +32,7 @@ def create_app():
 
     # Инициализация базы данных
     try:
-        engine, Session, Base = init_db(app)
+        engine, Session, Base = init_db(database_url)
         set_db_globals(engine, Session, Base)
         #admin('admin', 'admin', 'admin')
         logger=setup_logger()

@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    ports:
+      - "${DATABASE_PORT}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} 
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  alembic:
+    build: .
+    command: >
+      bash -c "wait-for-it db:${DATABASE_PORT} -- alembic upgrade head"  # Ждем, пока база данных будет готова
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+
+  web:
+    build: .
+    ports:
+      - "${PORT}:5000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - alembic  # Ждем завершения выполнения миграций Alembic
+    volumes:
+      - .:/app
+
+  init_password:
+    build: .
+    command: python password.py  # Запуск скрипта для добавления админа
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - web  # Ждем, пока веб-приложение будет запущено
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_data:
