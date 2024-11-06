@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   db:
@@ -15,11 +15,11 @@ services:
   alembic:
     build: .
     command: >
-      bash -c "wait-for-it db:${DATABASE_PORT} -- alembic upgrade head"  # Ждем, пока база данных будет готова
+      bash -c "wait-for-it db:${DATABASE_PORT} -- alembic upgrade head"  # Ждем базу и применяем миграции
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
-      - db
+      - db  # Alembic должен подождать, пока база будет доступна
     volumes:
       - .:/app
 
@@ -30,9 +30,10 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
-      - alembic  # Ждем завершения выполнения миграций Alembic
+      - alembic  # Web-приложение запускается только после завершения миграций
     volumes:
       - .:/app
+    command: python run.py  # Запуск приложения после миграций
 
   init_password:
     build: .
