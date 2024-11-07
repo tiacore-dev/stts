@@ -17,7 +17,7 @@ audio_bp = Blueprint('audio', __name__)
 async def upload_audio():
     
     current_user = get_jwt_identity()
-
+    logger.info(f"Пользователь {current_user} прислал файлы для загрузки.", extra={'user_id': current_user['login']})
     # Получение файла из запроса
     files = request.files.getlist('files')  # Получаем список файлов из формы
 
@@ -26,7 +26,7 @@ async def upload_audio():
         return jsonify({'error': 'No files provided'}), 400
 
     tasks = []  # Список задач для асинхронной обработки
-
+    logger.info(f"Начата обработка файлов.", extra={'user_id': current_user['login']})
     for file in files:
         # Генерация имени файла и подготовка данных для загрузки
         file_name_input = request.form.get('fileName', 'default_name')  # Имя файла от пользователя
@@ -43,7 +43,7 @@ async def upload_audio():
     # Составляем ответ
     success_files = [result for result in results if result['status'] == 'success']
     error_files = [result for result in results if result['status'] == 'error']
-
+    logger.info(f"Обработка файлов для пользователя {current_user} завершена.", extra={'user_id': current_user['login']})
     return jsonify({
         'success_files': success_files,
         'error_files': error_files

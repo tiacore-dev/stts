@@ -18,4 +18,4 @@ flask-socketio
 eventlet
 asyncio
 "flask[async]"
-#aiohttp
+aiohttp

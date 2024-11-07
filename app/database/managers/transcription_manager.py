@@ -12,7 +12,7 @@ class TranscriptionManager:
     def __init__(self):
         self.Session = Session
 
-    def add_transcription(self,  user_id,text, audio_id, tokens):
+    def add_transcription(self, user_id, text, audio_id, tokens):
         session = self.Session()
         logger.info("Сохранение транскрипции в базу данных.", extra={'user_id': user_id})
         transcription_id = uuid.uuid4()

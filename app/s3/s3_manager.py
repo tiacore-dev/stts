@@ -118,7 +118,7 @@ class S3Manager:
             logger.info(f"Получение файла '{object_name}' из bucket '{bucket_name}'.", extra={'user_id': 's3'})
             try:
                 response = await s3_client.get_object(Bucket=bucket_name, Key=object_name)
-                file_content = response['Body'].read()  # Чтение содержимого файла в байты
+                file_content = await response['Body'].read()  # Чтение содержимого файла с await
                 logger.info(f"Файл '{object_name}' успешно получен.", extra={'user_id': 's3'})
                 return file_content
             except Exception as e:
