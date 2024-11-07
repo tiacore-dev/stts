@@ -1,11 +1,15 @@
 from flask import Blueprint, request, jsonify
-from flask import send_file, abort
+from flask import render_template
 from flask_jwt_extended import  get_jwt_identity, jwt_required
 
 
 
 logs_bp = Blueprint('logs', __name__)
 
+
+@logs_bp.route('/logs')  
+def logs_page():
+    return render_template('logs.html')
 
 @logs_bp.route('/admin_protected', methods=['GET'])
 @jwt_required()  # Требуется авторизация с JWT

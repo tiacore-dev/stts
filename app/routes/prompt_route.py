@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, url_for, jsonify, flash, current_app
+from flask import Blueprint, request, redirect, url_for, jsonify, flash, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import logging
 # Получаем логгер по его имени
@@ -7,8 +7,47 @@ logger = logging.getLogger('chatbot')
 prompt_bp = Blueprint('prompt', __name__)
 
 
+# Отображение страницы управления промптами
+@prompt_bp.route('/manage_prompts', methods=['GET'])
+def manage_prompts():
+    return render_template('prompt/manage_prompts.html')
+
+# Страница добавления нового промпта
+@prompt_bp.route('/add_prompts', methods=['GET'])
+def add_prompt_page():
+    return render_template('prompt/add_prompt.html')
+
+# Страница редактирования промпта
+@prompt_bp.route('/prompt/<prompt_id>/', methods=['GET'])
+def edit_prompt_page(prompt_id):
+    from app.database.managers.prompt_manager import PromptManager
+    prompt_manager = PromptManager()
+    
+    prompt = prompt_manager.get_prompt_by_prompt_id(prompt_id)
+    
+    if prompt:
+        return render_template('prompt/edit_prompt.html', prompt_id=prompt_id, prompt_name=prompt['prompt_name'], prompt_text=prompt['text'])
+    else:
+        flash('Prompt not found', 'danger')
+        return redirect(url_for('prompt.manage_prompts'))
+    
+# Страница просмотра промпта
+@prompt_bp.route('/prompt/<prompt_id>/view', methods=['GET'])
+def view_prompt(prompt_id):
+    from app.database.managers.prompt_manager import PromptManager
+    prompt_manager = PromptManager()
+    
+    prompt = prompt_manager.get_prompt_by_prompt_id(prompt_id)
+    
+    if prompt:
+        return render_template('prompt/view_prompt.html', prompt_id=prompt_id, prompt_name=prompt['prompt_name'], prompt_text=prompt['text'])
+    else:
+        flash('Prompt not found', 'danger')
+        return redirect(url_for('prompt.manage_prompts'))
+
+
 # Достать все промпты
-@prompt_bp.route('/prompt/get_all', methods=['GET'])
+@prompt_bp.route('/prompt/all', methods=['GET'])
 @jwt_required()
 def get_prompts():
     from app.database.managers.prompt_manager import PromptManager
@@ -124,16 +163,4 @@ def set_automatic(prompt_id):
         return jsonify(success=False, message=str(e)), 500
 
 
-# Страница просмотра промпта
-@prompt_bp.route('/prompt/<prompt_id>/view', methods=['GET'])
-def view_prompt(prompt_id):
-    from app.database.managers.prompt_manager import PromptManager
-    prompt_manager = PromptManager()
-    
-    prompt = prompt_manager.get_prompt_by_prompt_id(prompt_id)
-    
-    if prompt:
-        return jsonify(prompt)
-    else:
-        flash('Prompt not found', 'danger')
-        return redirect(url_for('prompt.manage_prompts'))
+

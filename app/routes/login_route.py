@@ -1,6 +1,6 @@
 
 from flask_jwt_extended import create_access_token
-from flask import jsonify, request, Blueprint
+from flask import jsonify, request, Blueprint, render_template
 from flask_jwt_extended import create_refresh_token, get_jwt_identity, verify_jwt_in_request
 
 
@@ -8,8 +8,31 @@ from flask_jwt_extended import create_refresh_token, get_jwt_identity, verify_jw
 login_bp = Blueprint('login', __name__)
 
 
+# Основная страница
+@login_bp.route('/')
+def index():
+    return render_template('auth/home.html')
+
+# Маршрут для страницы входа
+@login_bp.route('/login', methods=['GET'])
+def login():
+    return render_template('auth/login.html')
+
+
+# Маршрут для страницы входа
+@login_bp.route('/register', methods=['GET'])
+def register():
+    return render_template('auth/register.html')
+
+# Выход из системы
+@login_bp.route('/logout')
+def logout():
+    return jsonify({"msg": "Logout successful"}), 200
+
+
+
 # Маршрут для входа (авторизации)
-@login_bp.route('/login', methods=['POST'])
+@login_bp.route('/auth', methods=['POST'])
 def auth():
     from app.database.managers.user_manager import UserManager
     # Создаем экземпляр менеджера базы данных
@@ -38,7 +61,7 @@ def auth():
 
 
 @login_bp.route('/register', methods=['POST'])
-def register():
+def register_user():
     from app.database.managers.user_manager import UserManager
     # Создаем экземпляр менеджера базы данных
     db = UserManager()

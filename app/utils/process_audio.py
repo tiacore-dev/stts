@@ -67,7 +67,7 @@ async def process_and_transcribe_audio(file_record, current_user, audio_id):
     # Анализируем текст и сохраняем транскрипции для пользователя
     logger.info("Анализ текста.", extra={'user_id': current_user})
     dialog, tokens_full = await set_dialog(transcriptions[0], transcriptions[1], transcriptions[2])
-    logger.info(f"Транскрибация диалога: {dialog}", extra={'user_id': current_user})
+    #logger.info(f"Транскрибация диалога: {dialog}", extra={'user_id': current_user})
     transcription_id = db.add_transcription(current_user, dialog, audio_id, tokens_full)
     logger.info(f"Получена транскрипция с ID: {transcription_id}", extra={'user_id': current_user})
     return transcription_id

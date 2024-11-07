@@ -13,12 +13,12 @@ class User(Base):
     password_hash = Column(String, nullable=True)  # Может быть NULL для OAuth-пользователей
     user_type = Column(String, default='user') #user или admin
 
-    # Связи
-    audio_files = relationship("AudioFile", back_populates="user")
-    prompts = relationship("Prompt", back_populates="user")
-    transcriptions = relationship("Transcription", back_populates="user")
-    analysis = relationship("Analysis", back_populates="user")
-    api_keys = relationship("APIKeys", back_populates="user")
+    # Связи с каскадным удалением
+    audio_files = relationship("AudioFile", back_populates="user", cascade="all, delete-orphan")
+    prompts = relationship("Prompt", back_populates="user", cascade="all, delete-orphan")
+    transcriptions = relationship("Transcription", back_populates="user", cascade="all, delete-orphan")
+    analysis = relationship("Analysis", back_populates="user", cascade="all, delete-orphan")
+    api_keys = relationship("APIKeys", back_populates="user", cascade="all, delete-orphan")
 
     def set_password(self, password):
         

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script src="/static/js/analysis/analysis_details.js"></script>
+<h2>Детали транскрипции</h2>
+<p><strong>Название аудиофайла:</strong> <span id="audioFileName"></span></p>
+<p><strong>Название промпта:</strong> <span id="promptName"></span></p>
+<p><strong>Текст:</strong> <span id="analysisText"></span></p>
+<p><strong>Число токенов:</strong> <span id="analysisTokens"></span></p>
+
+<button id="backButton" class="btn btn-secondary mt-4">Назад</button>
+
+<div id="loadingIndicator" style="display:none;">Загрузка...</div>
+
+{% endblock %}
+
+
+<!--
+
+text": analysis['text'],
+        "tokens": transcription['tokens'],
+        "audio_file_name": get_audio_name(analysis['audio_id']),
+        "prompt_name
+
+-->

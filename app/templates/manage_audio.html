@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Подключение внешнего JS -->
+
+<script src="/static/js/manage_audio.js"></script>
+
+<h2>Upload Audio Files</h2>
+
+
+<!-- Форма для загрузки аудиофайлов -->
+<form id="uploadForm" enctype="multipart/form-data">
+  <div class="mb-3">
+    <label for="fileName" class="form-label">Custom File Name (optional)</label>
+    <input type="text" class="form-control" id="fileNameInput" name="fileName" placeholder="Enter a custom file name">
+  </div>
+  <div class="mb-3">
+    <label for="file" class="form-label">Select Audio File</label>
+    <input type="file" class="form-control" id="fileInput" name="file" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Upload</button>
+</form>
+
+
+<!-- Список файлов с пагинацией -->
+<h3 class="mt-5">Uploaded Files</h3>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>File Name</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="fileList">
+    {% for file in files %}
+    <tr>
+      <td>{{ file.name }}</td>
+      <td>
+        <!-- Кнопка для скачивания файла -->
+        <button class="btn btn-success" onclick="downloadFile('{{ file.name }}')">Download</button>
+        <!-- Кнопка для удаления файла -->
+        <button class="btn btn-danger" onclick="deleteFile('{{ file.name }}')">Delete</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<nav>
+  <ul class="pagination" id="pagination"></ul>
+</nav>
+
+
+{% endblock %}

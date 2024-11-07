@@ -1,13 +1,24 @@
 from app.openai.analyze_text import analyze_text
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import logging
 from app.utils.db_get import get_prompt, get_transcription
 import asyncio
+from app.utils.db_get import get_audio_name, get_prompt_name
 
 logger = logging.getLogger('chatbot')
 
 analysis_bp = Blueprint('analysis', __name__)
+
+@analysis_bp.route('/analysis', methods=['GET'])
+def transcription():
+    return render_template('analysis/analysis.html')
+
+
+
+@analysis_bp.route('/analysis_result', methods=['GET'])
+def analysis_result():
+    return render_template('analysis/analysis_result.html')
 
 
 @analysis_bp.route('/analysis/create', methods=['POST'])
@@ -53,7 +64,7 @@ async def create_analysis():
 
 
 
-@analysis_bp.route('/analysis/get_all', methods=['GET'])
+@analysis_bp.route('/analysis/all', methods=['GET'])
 @jwt_required()
 def get_analysis():
     from app.database.managers.analysis_manager import AnalysisManager
@@ -72,19 +83,73 @@ def get_analysis():
         return jsonify({"msg": "No analysiss found"}), 404
     
 
+@analysis_bp.route('/api/analysis/<analysis_id>', methods=['GET'])
+@jwt_required()
+def get_transcription_by_id(analysis_id):
+    current_user = get_jwt_identity()
+    logger.info(f"Запрос на получение транскрипции по analysis_id: {analysis_id} для пользователя: {current_user}", extra={'user_id': current_user})
+    from app.database.managers.analysis_manager import AnalysisManager
+    
+    db = AnalysisManager()
+    analysis = db.get_analysis_by_id(analysis_id)
+
+    if transcription:
+        return jsonify({
+            "text": analysis['text'],
+            "tokens": transcription['tokens'],
+            "audio_file_name": get_audio_name(analysis['audio_id']),
+            "prompt_name": get_prompt_name(analysis['prompt_id'])
+        }), 200
+    else:
+        logger.warning("Анализ не найдена.", extra={'user_id': current_user['login']})
+        return jsonify({"msg": "analysis not found"}), 404
+
 @analysis_bp.route('/analysis/<analysis_id>/view', methods=['GET'])
 @jwt_required()
 def get_analysis_by_analysis_id(analysis_id):
     current_user = get_jwt_identity()
-    logger.info(f"Запрос на получение анализа по analysis_id: {analysis_id} для пользователя: {current_user}", extra={'user_id': current_user['login']})
-    from app.database.managers.analysis_manager import AnalysisManager
+    logger.info(f"Запрос на отображение транскрипции с analysis_id: {analysis_id} для пользователя: {current_user}", extra={'user_id': current_user['login']})
     
-    db =AnalysisManager()
+    # Передаем только transcription_id в шаблон
+    return render_template('analysis/analysis_details.html', analysis_id=analysis_id)
+    
 
-    analysis = db.get_analysis_by_id(analysis_id)
-
-    if analysis:
-        return jsonify(analysis), 200
+@analysis_bp.route('/user_prompts', methods=['GET'])
+@jwt_required()
+def get_user_prompts():
+    from app.database.managers.prompt_manager import PromptManager
+    prompt_manager = PromptManager()
+    current_user = get_jwt_identity()
+    logger.info(f"Запрос готовых промптов для пользователя: {current_user}", extra={'user_id': current_user['login']})
+    prompts = prompt_manager.get_prompts_by_user(current_user['user_id'])  # Извлекаем промпты для текущего пользователя
+    prompt_data = []
+    for s in prompts:
+        prompt_info = {
+            "prompt_name": s[0],
+            "prompt_id": s[2]
+        }
+        prompt_data.append(prompt_info)
+    if prompt_data:
+        return jsonify(prompt_data=prompt_data), 200
     else:
-        logger.warning("Анализ не найден.", extra={'user_id': current_user['login']})
-        return jsonify({"msg": "analysis not found"}), 404
+        return jsonify({"msg": "No prompts found"}), 404
+    
+
+@analysis_bp.route('/user_transcriptions', methods=['GET'])
+@jwt_required()
+def get_user_transcriptions():
+    from app.database.managers.transcription_manager import TranscriptionManager
+    db = TranscriptionManager()
+    current_user = get_jwt_identity()
+    
+    logger.info(f"Запрос готовых промптов для пользователя: {current_user}", extra={'user_id': current_user['login']})
+    transcriptions = db.get_transcription_by_user(current_user['user_id'])  # Извлекаем промпты для текущего пользователя
+    names = [{
+        "transcription_id": t['transcription_id'],
+        "audio_name": get_audio_name(t['audio_id'])
+    } for t in transcriptions]
+
+    if names:
+        return jsonify(transcription=names), 200
+    else:
+        return jsonify({"msg": "No prompts found"}), 404

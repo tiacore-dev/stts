@@ -10,6 +10,9 @@ from app.openai import init_openai
 from app.utils.logger import setup_logger   # Импортируем логгер
 from flask_socketio import SocketIO
 import eventlet
+from flask_cors import CORS
+
+
 
 load_dotenv()
 
@@ -101,6 +104,6 @@ def create_app():
         raise
 
 
-    
+    CORS(app, resources={r"/*": {"origins": "http://147.45.145.212:5000"}})
 
     return app, socketio

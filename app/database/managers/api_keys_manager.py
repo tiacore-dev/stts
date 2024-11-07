@@ -33,14 +33,14 @@ class APIKeysManager:
                 api_key_record.comment = new_comment
                 session.commit()  # Сохраняем изменения в базе данных
                 logger.info(f"api_key для пользователя '{user_id}' успешно обновлён.", extra={'user_id': 'APIKeyManager'})
-                return True
+                return new_api_key
             else:
                 logger.warning(f"api_key для пользователя '{user_id}' не найден.", extra={'user_id': 'APIKeyManager'})
-                return False
+                
         except Exception as e:
             logger.error(f"Ошибка при обновлении api_key для пользователя '{user_id}': {str(e)}", extra={'user_id': 'APIKeyManager'})
             session.rollback()  # Откатываем изменения в случае ошибки
-            return False
+            
         finally:
             session.close()
 

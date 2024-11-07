@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/static/js/main.js"></script>
+<h2>Зарегистрироваться</h2>
+<form id="registerForm">
+    <div class="mb-3">
+        <label for="username" class="form-label">Имя</label>
+        <input type="text" class="form-control" id="username" required>
+    </div>
+    <div class="mb-3">
+        <label for="login" class="form-label">Логин</label>
+        <input type="text" class="form-control" id="login" required>
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Пароль</label>
+        <input type="password" class="form-control" id="password" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+</form>
+<div id="registerAlert" class="mt-3"></div>
+{% endblock %}
