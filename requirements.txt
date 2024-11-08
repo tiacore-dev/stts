@@ -13,7 +13,7 @@ boto3
 pydub
 openai
 #aiobotocore 
-aiboto3
+aioboto3
 flask-socketio
 eventlet
 asyncio
