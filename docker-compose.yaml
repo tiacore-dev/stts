@@ -35,7 +35,7 @@ services:
       - .:/app
     command: python run.py  # Запуск приложения после миграций
 
-"""  init_password:
+  init_password:
     build: .
     command: python password.py  # Запуск скрипта для добавления админа
     environment:
@@ -43,7 +43,7 @@ services:
     depends_on:
       - web  # Ждем, пока веб-приложение будет запущено
     volumes:
-      - .:/app"""
+      - .:/app
 
 volumes:
   postgres_data:
