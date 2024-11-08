@@ -98,7 +98,7 @@ $(document).ready(function() {
             processData: false,
             contentType: false,
             success: function(response) {
-                //alert('Файлы успешно загружены');
+                alert('Файлы успешно загружены');
                 loadFiles();  // Обновление списка файлов после загрузки
                 $('#uploadForm')[0].reset(); // Сбрасываем форму
             },
