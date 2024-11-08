@@ -4,6 +4,7 @@ from app.openai.set_dialog import set_dialog
 import io
 import logging
 import asyncio
+from app.utils.db_get import transcribed_audio
 
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
@@ -69,5 +70,10 @@ async def process_and_transcribe_audio(file_record, current_user, audio_id):
     dialog, tokens_full = await set_dialog(transcriptions[0], transcriptions[1], transcriptions[2])
     #logger.info(f"Транскрибация диалога: {dialog}", extra={'user_id': current_user})
     transcription_id = db.add_transcription(current_user, dialog, audio_id, tokens_full)
+    is_set= transcribed_audio(audio_id)
+    if is_set:
+        logger.info(f"Установлена транскрибированность для аудио с ID: {audio_id}", extra={'user_id': current_user})
+    else:
+        logger.error(f"Ошибка установления транскрибированности для аудио с ID: {audio_id}", extra={'user_id': current_user})
     logger.info(f"Получена транскрипция с ID: {transcription_id}", extra={'user_id': current_user})
     return transcription_id

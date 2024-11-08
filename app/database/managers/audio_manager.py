@@ -10,7 +10,7 @@ class AudioFileManager:
     def __init__(self):
         self.Session = Session
 
-    def add_audio_file(self, user_id, file_name, file_extension, file_size, bucket_name, s3_key):
+    def add_audio_file(self, user_id, file_name, file_extension, file_size, bucket_name, s3_key, transcribed=False):
         session = self.Session()
         logger.info(f"Сохранение информации о загруженном аудиофайле '{file_name}' для пользователя '{user_id}'.", extra={'user_id': 'AudioManager'})
         audio_id = uuid.uuid4()
@@ -22,7 +22,8 @@ class AudioFileManager:
                 file_extension=file_extension,
                 file_size=file_size,
                 bucket_name=bucket_name,
-                s3_key=s3_key
+                s3_key=s3_key,
+                transcribed=transcribed
             )
             session.add(new_file)
             session.commit()
@@ -113,7 +114,7 @@ class AudioFileManager:
         session = self.Session()
         logger.info(f"Получение списка аудиофайлов для пользователя '{user_id}'.", extra={'user_id': 'AudioManager'})
         try:
-            files = session.query(AudioFile).filter_by(user_id=user_id).all()
+            files = session.query(AudioFile).filter_by(user_id=user_id, transcribed=False).all()
             logger.info(f"Найдено {len(files)} аудиофайлов для пользователя '{user_id}'.", extra={'user_id': 'AudioManager'})
             
             # Возвращаем простой список словарей, без вложенных массивов
@@ -121,3 +122,25 @@ class AudioFileManager:
             return result
         finally:
             session.close()
+
+    def set_transcribed_audio(self, audio_id):
+        session = self.Session()
+        logger.info(f"Получение аудиофайла по ID '{audio_id}'.", extra={'user_id': 'AudioManager'})
+        try:
+            file = session.query(AudioFile).filter_by(audio_id=audio_id).first()
+            if file:
+                logger.info(f"Аудиофайл '{file.audio_id}' найден.", extra={'user_id': 'AudioManager'})
+                file.transcribed=True
+                session.commit()
+                return True
+            else:
+                logger.warning(f"Аудиофайл с ID '{audio_id}' не найден.", extra={'user_id': 'AudioManager'})
+                return False
+        except Exception as e:
+            logger.error(f"Ошибка при установке транскрибированности аудиофайла '{audio_id}': {e}", extra={'user_id': 'AudioManager'})
+            session.rollback()
+            return False
+        finally:
+            session.close()
+
+    

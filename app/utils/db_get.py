@@ -23,3 +23,9 @@ def get_prompt_name(prompt_id):
     db = PromptManager()
     prompt = db.get_prompt_by_prompt_id(prompt_id)
     return prompt['prompt_name']
+
+def transcribed_audio(audio_id):
+    from app.database.managers.audio_manager import AudioFileManager
+    db = AudioFileManager()
+    is_set=db.set_transcribed_audio(audio_id)
+    return is_set
