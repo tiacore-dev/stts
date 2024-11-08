@@ -17,5 +17,5 @@ aiboto3
 flask-socketio
 eventlet
 asyncio
-"flask[async]"
+flask[async]
 aiohttp
