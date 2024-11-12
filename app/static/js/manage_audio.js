@@ -29,17 +29,17 @@ $(document).ready(function() {
     });
 
 
-    const token = localStorage.getItem('jwt_token');
+    //const token = localStorage.getItem('jwt_token');
 
     // Проверка валидности токена
-    if (!token) {
+    if (!localStorage.getItem('jwt_token')) {
         window.location.href = '/';
     } else {
         $.ajax({
             url: '/protected',  // Защищённый маршрут для проверки токена
             type: 'GET',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
             },
             success: function(response) {
                 loadFiles();  // Загрузка списка файлов
@@ -51,56 +51,73 @@ $(document).ready(function() {
         });
     }
 
-    // Функция загрузки файлов
+    let fileIndex = 0; // Индекс для добавляемых файлов
+
+    // Функция для добавления нового поля файла
+    function addFileInput() {
+        fileIndex++;
+
+        const fileInputGroup = `
+            <div class="file-input-group" data-index="${fileIndex}">
+                <label for="fileInput${fileIndex}">Выберите файл:</label>
+                <input type="file" id="fileInput${fileIndex}" name="fileInput${fileIndex}" class="form-control">
+                <label for="fileNameInput${fileIndex}">Имя файла:</label>
+                <input type="text" id="fileNameInput${fileIndex}" class="form-control" placeholder="Введите имя файла">
+                <button type="button" class="btn btn-danger remove-file-btn" data-index="${fileIndex}">Удалить файл</button>
+            </div>
+        `;
+
+        $('#fileInputsContainer').append(fileInputGroup);
+    }
+
+    // Обработчик кнопки "Добавить файл"
+    $('#addFileButton').on('click', function() {
+        addFileInput();
+    });
+
+    // Обработчик кнопки "Удалить файл"
+    $(document).on('click', '.remove-file-btn', function() {
+        const index = $(this).data('index');
+        $(`.file-input-group[data-index="${index}"]`).remove();
+    });
+
+    // Обработчик отправки формы
     $('#uploadForm').on('submit', function(event) {
         event.preventDefault();
-    
-        let formData = new FormData(this);
-        const fileInput = $('#fileInput')[0];
-    
-        // Проверяем, что выбрано хотя бы одно вложение
-        if (fileInput.files.length === 0) {
-            alert('Пожалуйста, выберите один или несколько файлов для загрузки.');
+        
+        const formData = new FormData();
+        let filesSelected = false;
+
+        $('.file-input-group').each(function() {
+            const index = $(this).data('index');
+            const fileInput = $(`#fileInput${index}`)[0];
+            const customFileName = $(`#fileNameInput${index}`).val() || fileInput.files[0].name;
+
+            if (fileInput.files.length > 0) {
+                filesSelected = true;
+                formData.append('files', fileInput.files[0]);
+                formData.append('fileNames', customFileName);
+            }
+        });
+
+        if (!filesSelected) {
+            alert('Выберите хотя бы один файл для загрузки.');
             return;
         }
-    
-        // Добавляем все выбранные файлы в formData
-        for (let i = 0; i < fileInput.files.length; i++) {
-            const file = fileInput.files[i];
-            
-            // Оригинальное имя и расширение файла
-            const originalFileName = file.name;
-            const fileExtension = originalFileName.split('.').pop();
-    
-            // Имя файла без расширения
-            const fileNameWithoutExtension = originalFileName.split('.').slice(0, -1).join('.');
-            
-            // Устанавливаем поле 'fileName' в форме для каждого файла
-            formData.append('files', file);
-            formData.append('fileName', fileNameWithoutExtension); // Можно задать имя на стороне клиента
-        }
-    
-        // Получаем токен из localStorage
-        const token = localStorage.getItem('jwt_token');
-        if (!token) {
-            alert('Необходимо войти в систему, чтобы загружать файлы.');
-            return;
-        }
-    
-        // Отправка данных на сервер
+
         $.ajax({
             url: '/audio/upload',
             type: 'POST',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
             },
             data: formData,
             processData: false,
             contentType: false,
             success: function(response) {
-                alert('Файлы успешно загружены');
-                loadFiles();  // Обновление списка файлов после загрузки
-                $('#uploadForm')[0].reset(); // Сбрасываем форму
+                alert('Файлы успешно загружены!');
+                $('#uploadForm')[0].reset();
+                $('#fileInputsContainer').empty();
             },
             error: function(xhr, status, error) {
                 console.error('Ошибка загрузки файлов:', error);
@@ -108,6 +125,9 @@ $(document).ready(function() {
             }
         });
     });
+
+    
+    
     
 
     // Функция загрузки списка файлов
@@ -116,7 +136,7 @@ $(document).ready(function() {
             url: `/audio/all?page=${page}`,
             type: 'GET',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
             },
             success: function(response) {
                 let fileList = $('#fileList');
@@ -130,7 +150,11 @@ $(document).ready(function() {
                                 <button class="btn btn-info" onclick="downloadFile('${file.audio_id}')">Download</button>
                                 <button class="btn btn-danger" onclick="deleteFile('${file.audio_id}')">Delete</button>
                             </td>
+                            <td>
+                                ${file.transcribed ? 'Yes' : 'No'}
+                            </td>
                         </tr>
+
                     `);
                 });
 
@@ -153,17 +177,17 @@ $(document).ready(function() {
         if (!confirm(`Вы уверены, что хотите удалить файл с ID '${audioId}'?`)) return;
 
         // Получаем токен из localStorage
-        const token = localStorage.getItem('jwt_token');
+        /*const token = localStorage.getItem('jwt_token');
         if (!token) {
             alert('Необходимо войти в систему, чтобы удалять файлы.');
             return;
         }
-
+*/
         $.ajax({
             url: `/audio/${audioId}/delete`,  // Динамически подставляем audioId в URL
             type: 'DELETE',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
             },
             success: function() {
                 alert(`Файл с ID '${audioId}' успешно удален`);
@@ -184,17 +208,18 @@ $(document).ready(function() {
 
     window.downloadFile = function(audioId) {
         // Получаем токен из localStorage
-        const token = localStorage.getItem('jwt_token');
+        /*const token = localStorage.getItem('jwt_token');
         if (!token) {
             alert('Необходимо войти в систему, чтобы загружать файлы.');
             return;
         }
+            */
     
         $.ajax({
             url: `/audio/${audioId}/download_url`,  // Подставляем audioId в URL
             type: 'GET',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
             },
             success: function(response) {
                 if (response.url) {

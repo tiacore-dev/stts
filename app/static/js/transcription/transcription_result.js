@@ -39,9 +39,13 @@ $(document).ready(function() {
     
                 response.forEach(function(transcription, index) {
                     const rowNumber = offset + index + 1;  // Нумерация строк
+                    
+                    // Обрезка текста транскрипции, если он слишком длинный
+                    const trimmedText = transcription.text.length > 100 ? transcription.text.substring(0, 100) + '...' : transcription.text;
+    
                     const row = `<tr class="clickable-row" data-transcription-id="${transcription.transcription_id}">
                                     <td>${rowNumber}</td>
-                                    <td>${transcription.text}</td>
+                                    <td>${trimmedText}</td>
                                     <td>${transcription.audio_file_name}</td>
                                 </tr>`;
                     $('#transcriptionsTable tbody').append(row);
@@ -58,6 +62,7 @@ $(document).ready(function() {
             }
         });
     }
+    
     
 
 });

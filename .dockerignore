@@ -5,6 +5,8 @@ __pycache__/
 *.pyo
 *.pyd
 
+audio_files_examples/
+
 # Игнорируем директории с миграциями
 alembic/
 migrations/

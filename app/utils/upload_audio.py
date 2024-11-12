@@ -4,7 +4,7 @@ logger = logging.getLogger('chatbot')
 
 async def process_and_upload_file(file, s3_key, current_user, file_name_input, file_extension, file_size):
     from app.database.managers.audio_manager import AudioFileManager
-    from app.s3 import get_s3_manager, get_bucket_name
+    from app.services.s3 import get_s3_manager, get_bucket_name
 
     db = AudioFileManager()
     s3_manager = get_s3_manager()

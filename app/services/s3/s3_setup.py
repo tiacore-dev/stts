@@ -5,7 +5,7 @@ bucket_name=None
 def init_s3_manager(app):
     global s3_manager, bucket_name
     s3_manager = S3Manager(app)
-    bucket_name=app.config['bucket_name']
+    bucket_name=app.config['BUCKET_NAME']
 
 
 def get_s3_manager():

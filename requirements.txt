@@ -19,3 +19,6 @@ eventlet
 asyncio
 flask[async]
 aiohttp
+celery
+flower
+redis
