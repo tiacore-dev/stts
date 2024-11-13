@@ -43,7 +43,7 @@ services:
 
   celery:
     build: .
-    command: celery -A celery_worker:celery worker --loglevel=info
+    command: ["bash", "-c", "/wait-for-it.sh redis:6379 -- celery -A celery_worker:celery worker --loglevel=info"]
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
@@ -51,6 +51,7 @@ services:
       - db
     volumes:
       - .:/app
+
 
   flower:
     image: mher/flower

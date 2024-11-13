@@ -1,13 +1,14 @@
+# Dockerfile
+
 # Используем официальный образ Python в качестве базового
 FROM python:3.9-slim
 
-# Устанавливаем необходимые зависимости, включая ffmpeg, curl, gcc, libpq-dev и Redis
+# Устанавливаем необходимые зависимости, включая ffmpeg, curl, gcc и зависимости для Python
 RUN apt-get update && apt-get install -y \
     curl \
     ffmpeg \
     gcc \
     libpq-dev \
-    redis-server \
     && rm -rf /var/lib/apt/lists/*
 
 # Копируем wait-for-it.sh в контейнер
