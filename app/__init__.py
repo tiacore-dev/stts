@@ -1,99 +1,65 @@
-from flask import Flask
 from flask_jwt_extended import JWTManager
-import os
-from dotenv import load_dotenv
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import Flask
+from config.config_flask import ConfigFlask
+from service_registry import register_service
 from app.database import init_db, set_db_globals
-from app.s3 import init_s3_manager
+from app.services.s3 import init_s3_manager
 from app.routes import register_routes
-from app.openai import init_openai
-from app.utils.logger import setup_logger   # Импортируем логгер
+from app.services.openai import init_openai
+from app.utils.logger import setup_logger
 from flask_socketio import SocketIO
-import eventlet
 from flask_cors import CORS
-
-
-
-load_dotenv()
-
-from functools import wraps
-from flask import g  
-
-
+#from app_celery import make_celery
 
 def create_app():
     app = Flask(__name__)
+
+
+    app.config.from_object(ConfigFlask)
+
     
-    # Настройки приложения
-    try:
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-        database_url=os.getenv('DATABASE_URL')
-        app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-        #logger.info("Настройки приложения загружены.")
-    except Exception as e:
-        #logger.error(f"Ошибка при загрузке настроек приложения: {e}")
-        raise
 
     # Инициализация базы данных
     try:
-        engine, Session, Base = init_db(database_url)
+        engine, Session, Base = init_db(app.config['SQLALCHEMY_DATABASE_URI'])
         set_db_globals(engine, Session, Base)
-        logger=setup_logger()
+        from app.models import event_listeners
+        logger = setup_logger()
         logger.info("База данных успешно инициализирована.", extra={'user_id': 'init'})
     except Exception as e:
-        logger.error(f"Ошибка при инициализации базы данных: {e}", extra={'user_id': 'init'})
+        #logger.error(f"Ошибка при инициализации базы данных: {e}", extra={'user_id': 'init'})
         raise
 
-    # Настройка JWT
+    # Инициализация JWT
     try:
-        app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')  # Секретный ключ для JWT
-        app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 3600  # Время истечения токена доступа
         jwt = JWTManager(app)
+        register_service('jwt', jwt)
         logger.info("JWT инициализирован.", extra={'user_id': 'init'})
     except Exception as e:
         logger.error(f"Ошибка при инициализации JWT: {e}", extra={'user_id': 'init'})
         raise
 
-    # Настройка OpenAI
-    try:
-        app.config['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
-        logger.info("Настройки OpenAI загружены.", extra={'user_id': 'init'})
-    except Exception as e:
-        logger.error(f"Ошибка при загрузке настроек OpenAI: {e}", extra={'user_id': 'init'})
-        raise
-    
-    # Настройка хранилища s3
-    try:
-        app.config['endpoint_url']=os.getenv('ENDPOINT_URL')
-        app.config['region_name']=os.getenv('REGION_NAME')
-        app.config['aws_access_key_id']=os.getenv('AWS_ACCESS_KEY_ID')
-        app.config['aws_secret_access_key']=os.getenv('AWS_SECRET_ACCESS_KEY')
-        app.config['bucket_name']=os.getenv('BUCKET_NAME')
-        logger.info("Настройки s3 хранилища загружены.", extra={'user_id': 'init'})
-    except Exception as e:
-        logger.error(f"Ошибка при загрузке настроек s3 хранилища: {e}", extra={'user_id': 'init'})
-        raise
-
-
     # Инициализация OpenAI
     try:
         init_openai(app)
+        register_service('openai', init_openai)
         logger.info("OpenAI успешно инициализирован.", extra={'user_id': 'init'})
     except Exception as e:
         logger.error(f"Ошибка при инициализации OpenAI: {e}", extra={'user_id': 'init'})
         raise
 
-    # Инициализация s3
+    # Инициализация S3
     try:
-        init_s3_manager(app)
-        logger.info("s3 хранилище успешно инициализировано.", extra={'user_id': 'init'})
+        s3_manager = init_s3_manager(app)
+        register_service('s3_manager', s3_manager)
+        logger.info("S3 менеджер успешно инициализирован.", extra={'user_id': 'init'})
     except Exception as e:
-        logger.error(f"Ошибка при инициализации s3 хранилища: {e}", extra={'user_id': 'init'})
+        logger.error(f"Ошибка при инициализации S3: {e}", extra={'user_id': 'init'})
         raise
 
-
-     # Инициализация SocketIO
-    socketio = SocketIO(app, async_mode='eventlet')
+    # Инициализация SocketIO
+    socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
+    register_service('socketio', socketio)
 
     # Регистрация маршрутов
     try:
@@ -103,7 +69,9 @@ def create_app():
         logger.error(f"Ошибка при регистрации маршрутов: {e}", extra={'user_id': 'init'})
         raise
 
-
-    CORS(app, resources={r"/*": {"origins": "http://147.45.145.212:5000"}})
+    # Настройка CORS
+    CORS(app, resources={r"/*": {"origins": app.config['CORS_ORIGINS']}})
+    #celery = make_celery(app)
+    #app.celery = celery
 
     return app, socketio

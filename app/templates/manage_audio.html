@@ -8,18 +8,16 @@
 <h2>Upload Audio Files</h2>
 
 
+
 <!-- Форма для загрузки аудиофайлов -->
 <form id="uploadForm" enctype="multipart/form-data">
-  <div class="mb-3">
-    <label for="fileName" class="form-label">Custom File Name (optional)</label>
-    <input type="text" class="form-control" id="fileNameInput" name="fileName" placeholder="Enter a custom file name">
+  <div id="fileInputsContainer">
+    <!-- Контейнер для динамического добавления полей файлов и имен -->
   </div>
-  <div class="mb-3">
-    <label for="file" class="form-label">Select Audio File</label>
-    <input type="file" class="form-control" id="fileInput" name="file" required>
-  </div>
-  <button type="submit" class="btn btn-primary">Upload</button>
+  <button type="button" id="addFileButton" class="btn btn-secondary">Добавить файл</button>
+  <button type="submit" class="btn btn-primary">Загрузить</button>
 </form>
+
 
 
 <!-- Список файлов с пагинацией -->
@@ -29,6 +27,7 @@
     <tr>
       <th>File Name</th>
       <th>Actions</th>
+      <th>Transcribed</th>
     </tr>
   </thead>
   <tbody id="fileList">
@@ -36,10 +35,17 @@
     <tr>
       <td>{{ file.name }}</td>
       <td>
-        <!-- Кнопка для скачивания файла -->
-        <button class="btn btn-success" onclick="downloadFile('{{ file.name }}')">Download</button>
-        <!-- Кнопка для удаления файла -->
-        <button class="btn btn-danger" onclick="deleteFile('{{ file.name }}')">Delete</button>
+          <!-- Кнопка для скачивания файла -->
+          <button class="btn btn-success" onclick="downloadFile('{{ file.audio_id }}')">Download</button>
+          <!-- Кнопка для удаления файла -->
+          <button class="btn btn-danger" onclick="deleteFile('{{ file.audio_id }}')">Delete</button>
+      </td>
+      <td>
+          {% if file.transcribed %}
+              Yes
+          {% else %}
+              No
+          {% endif %}
       </td>
     </tr>
     {% endfor %}

@@ -1,4 +1,4 @@
-from app.openai.analyze_text import analyze_text
+from app.services.openai.analyze_text import analyze_text
 from flask import Blueprint, jsonify, request, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import logging

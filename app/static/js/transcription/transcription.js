@@ -60,7 +60,7 @@ $(document).ready(function() {
                 $('#loadingIcon').hide();
                 $('#submitButton').prop('disabled', false).text('Отправить');
 
-                window.location.href = `/transcription_result`;
+                //window.location.href = `/transcription_result`;
             },
             error: function(xhr) {
                 $('#loadingIcon').hide();

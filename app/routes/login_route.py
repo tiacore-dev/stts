@@ -69,13 +69,13 @@ def register_user():
     login = request.json.get('login', None)
     password = request.json.get('password', None)
 
-    if not user_id or not password:
+    if not login or not password:
         return jsonify({"msg": "Login and password are required"}), 400
 
-    if db.user_exists(user_id):
+    if db.user_exists(login):
         return jsonify({"msg": "Login already taken"}), 400
 
-    user_id=db.add_user(username, login, password)
+    user_id = db.add_user(username, login, password)
 
         # Генерируем JWT токен
     

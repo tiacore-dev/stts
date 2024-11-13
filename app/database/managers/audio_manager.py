@@ -39,13 +39,22 @@ class AudioFileManager:
         session = self.Session()
         logger.info(f"Получение списка аудиофайлов для пользователя '{user_id}'.", extra={'user_id': 'AudioManager'})
         try:
+            # Логируем перед выполнением запроса
             files = session.query(AudioFile).filter_by(user_id=user_id).all()
-            logger.info(f"Найдено {len(files)} аудиофайлов для пользователя '{user_id}'.", extra={'user_id': 'AudioManager'})
+            logger.info(f"Запрос к БД выполнен. Найдено файлов: {len(files)}", extra={'user_id': 'AudioManager'})
+
+            if not files:
+                logger.warning(f"Для пользователя '{user_id}' не найдено аудиофайлов.", extra={'user_id': 'AudioManager'})
+            
             # Формируем массив массивов
-            result = [[f.audio_id, f.file_name, f.bucket_name, f.s3_key] for f in files]
+            result = [[f.audio_id, f.file_name, f.bucket_name, f.s3_key, f.transcribed] for f in files]
             return result
+        except Exception as e:
+            logger.error(f"Ошибка при запросе аудиофайлов: {e}", extra={'user_id': 'AudioManager'})
+            raise e
         finally:
             session.close()
+
 
     def get_audio_file_by_name(self,user_id, file_name):
         session = self.Session()

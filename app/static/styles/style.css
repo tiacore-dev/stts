@@ -205,3 +205,29 @@ th {
     max-width: 500px; /* Установите максимальную ширину */
     margin-bottom: 10px;
 }
+
+
+/* static/css/status.css */
+
+.task-status {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+.task-status h3 {
+    margin: 0 0 10px 0;
+}
+
+.task-status p {
+    margin: 5px 0;
+}
+
+.file-input-group {
+    margin-bottom: 15px; /* Отступ между группами полей */
+}
+
+.file-input-group .remove-file-btn {
+    margin-top: 10px; /* Отступ сверху для кнопки удаления */
+}

@@ -1,4 +1,4 @@
-
+version: '3.8'
 
 services:
   db:
@@ -8,20 +8,26 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} 
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   alembic:
     build: .
-    command: >
-      bash -c "/wait-for-it db:${DATABASE_PORT} -- alembic upgrade head"  # Ждем базу и применяем миграции
+    command: bash -c "alembic downgrade base && alembic upgrade head"
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
-      - db  # Alembic должен подождать, пока база будет доступна
+      db:
+        condition: service_healthy
     volumes:
       - .:/app
+
 
   web:
     build: .
@@ -30,20 +36,49 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
-      - alembic  # Web-приложение запускается только после завершения миграций
+      db:
+        condition: service_healthy
+      alembic:
+        condition: service_started
+      redis:
+        condition: service_healthy
     volumes:
       - .:/app
-    command: python run.py  # Запуск приложения после миграций
+    command: python run.py
 
-  init_password:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  celery:
     build: .
-    command: python password.py  # Запуск скрипта для добавления админа
+    command: celery -A celery_worker:celery worker --loglevel=info
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
-      - web  # Ждем, пока веб-приложение будет запущено
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
     volumes:
       - .:/app
+
+  flower:
+    image: mher/flower
+    command: ["celery", "-A", "app_celery.celery", "flower", "--address=0.0.0.0", "--port=5555"]
+    ports:
+      - "5555:5555"
+    depends_on:
+      redis:
+        condition: service_healthy
+      celery:
+        condition: service_started
 
 volumes:
   postgres_data:

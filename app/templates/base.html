@@ -16,7 +16,7 @@
     <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
     <script>
         // Подключение к серверу WebSocket
-        const socket = io.connect('http://147.45.145.212:5000"5000');  // Замените на ваш URL
+        const socket = io.connect('http://147.45.145.212:5000');  // Замените на ваш URL
 
         // Обработчик события подключения
         socket.on('connect', function() {
@@ -62,6 +62,7 @@
                 <li class="list-group-item"><a href="/transcription_result" class="list-group-item-action">Результаты транскрибации</a></li>
                 <li class="list-group-item"><a href="analysis" class="list-group-item-action">Анализ</a></li>
                 <li class="list-group-item"><a href="/analysis_result" class="list-group-item-action">Результаты анализа</a></li>
+                <li class="list-group-item"><a href="/status" class="list-group-item-action">Статусы задач</a></li>
                 <li class="list-group-item"><a href="/logs" class="list-group-item-action">История действий</a></li>
                 <li class="list-group-item"><a href="/api-keys" class="list-group-item-action">API ключи</a></li>
                 <!--<li class="list-group-item"><a href="/admin" class="list-group-item-action">Административная панель</a></li> -->

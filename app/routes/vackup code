@@ -1,0 +1,30 @@
+
+    """# Получаем результаты выполнения задач Celery
+    #results = [task.get() for task in tasks]
+
+    success_files = [result for result in results if result['status'] == 'success']
+    error_files = [result for result in results if result['status'] == 'error']
+
+    # Преобразование UUID в строки в success_files и error_files
+    success_files = [{'file_name': result['file_name'], 'audio_id': str(result['audio_id'])} for result in success_files]
+    error_files = [{'file_name': result['file_name'], 'audio_id': str(result['audio_id'])} for result in error_files]
+
+    logger.info(f"Обработка файлов для пользователя {user_login} завершена.", extra={'user_id': user_login})
+
+    # Уведомление через сокет по завершении
+    current_app.extensions['socketio'].emit('upload_progress', {
+        'message': f"Обработка завершена. {len(success_files)} файлов успешно загружено.",
+        'status': 'completed',
+        'success_files': success_files,
+        'error_files': error_files
+    }, room=user_login)"""
+    
+
+
+
+
+
+    """return jsonify({
+        'success_files': success_files,
+        'error_files': error_files
+    }), 200"""
