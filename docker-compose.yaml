@@ -43,7 +43,7 @@ services:
 
   celery:
     build: .
-    command: celery -A celery_worker.app worker --loglevel=info
+    command: celery -A celery_worker:celery worker --loglevel=info
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
