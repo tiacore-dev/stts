@@ -11,15 +11,20 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   alembic:
     build: .
-    command: >
-      bash -c "/wait-for-it db:${DATABASE_PORT} -- alembic upgrade head"  # Ждем базу и применяем миграции
+    command: alembic upgrade head
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - .:/app
 
@@ -30,28 +35,38 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
-      - alembic
-      - redis  # Убедитесь, что веб-приложение ждет Redis
+      db:
+        condition: service_healthy
+      alembic:
+        condition: service_started
+      redis:
+        condition: service_healthy
     volumes:
       - .:/app
-    command: python run.py  # Запуск приложения после миграций
+    command: python run.py
 
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   celery:
     build: .
-    command: ["bash", "-c", "/wait-for-it.sh redis:6379 -- celery -A celery_worker:celery worker --loglevel=info"]
+    command: celery -A celery_worker:celery worker --loglevel=info
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
-      - redis
-      - db
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
     volumes:
       - .:/app
-
 
   flower:
     image: mher/flower
@@ -59,8 +74,10 @@ services:
     ports:
       - "5555:5555"
     depends_on:
-      - redis
-      - celery
+      - redis:
+          condition: service_healthy
+      - celery:
+          condition: service_started
 
 volumes:
   postgres_data:

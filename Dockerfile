@@ -11,9 +11,9 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Копируем wait-for-it.sh в контейнер
+"""# Копируем wait-for-it.sh в контейнер
 RUN curl -o /wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh \
-    && chmod +x /wait-for-it.sh
+    && chmod +x /wait-for-it.sh"""
 
 # Указываем рабочую директорию внутри контейнера
 WORKDIR /app
