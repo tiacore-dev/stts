@@ -13,9 +13,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 20s  # Увеличьте интервал
-      timeout: 10s
-      retries: 10  # Увеличьте количество попыток
+      interval: 40s  # Увеличьте интервал
+      timeout: 20s
+      retries: 15  # Увеличьте количество попыток
 
   alembic:
     build: .
@@ -41,7 +41,7 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
-      alembic:
+      db:
         condition: service_healthy
       redis:
         condition: service_healthy
