@@ -13,34 +13,51 @@ class APIKeysManager:
     def add_api_key(self, user_id, comment):
         """Добавление API key."""
         session = self.Session()
-        api_key = uuid.uuid4()
-        new_record = APIKeys(api_key=api_key, user_id=user_id, comment=comment)  # Создаем объект APIKey
+        api_key = str(uuid.uuid4())
+        key_id = str(uuid.uuid4())
+        new_record = APIKeys(key_id=key_id, api_key=api_key, user_id=user_id, comment=comment)  # Создаем объект APIKey
         session.add(new_record)  # Добавляем новый лог через сессию
         session.commit()  # Не забудьте зафиксировать изменения в базе данных
         return api_key
     
-    def refresh_api_key(self, user_id, new_comment):
+
+    def delete_api_key(self, key_id):
         session = self.Session()
-        new_api_key = uuid.uuid4()
-        logger.info(f"Обновление api_key для пользователя '{user_id}'.", extra={'user_id': 'APIKeyManager'})
+        logger.info(f"Удаление аудиофайла '{key_id}' из базы данных.", extra={'user_id': 'APIKeysManager'})
         try:
-            # Находим api_key по user_id
-            api_key_record = session.query(APIKeys).filter_by(user_id=user_id).first()
-            
-            if api_key_record:
-                # Обновляем api_key
-                api_key_record.api_key = new_api_key
-                api_key_record.comment = new_comment
-                session.commit()  # Сохраняем изменения в базе данных
-                logger.info(f"api_key для пользователя '{user_id}' успешно обновлён.", extra={'user_id': 'APIKeyManager'})
-                return new_api_key
+            # Найдите файл в базе данных по имени
+            file_to_delete = session.query(APIKeys).filter_by(key_id=key_id).first()
+            if file_to_delete:
+                session.delete(file_to_delete)
+                session.commit()
+                logger.info(f"Аудиофайл '{key_id}' успешно удален из базы данных.", extra={'user_id': 'APIKeysManager'})
+                return True
             else:
-                logger.warning(f"api_key для пользователя '{user_id}' не найден.", extra={'user_id': 'APIKeyManager'})
-                
+                logger.warning(f"Аудиофайл '{key_id}' не найден в базе данных.", extra={'user_id': 'APIKeysManager'})
+                return False
         except Exception as e:
-            logger.error(f"Ошибка при обновлении api_key для пользователя '{user_id}': {str(e)}", extra={'user_id': 'APIKeyManager'})
-            session.rollback()  # Откатываем изменения в случае ошибки
-            
+            logger.error(f"Ошибка при удалении аудиофайла '{key_id}': {e}", extra={'user_id': 'APIKeysManager'})
+            session.rollback()
+            return False
         finally:
             session.close()
 
+    def get_api_keys(self, user_id):
+        session = self.Session()
+        try:
+            logger.info(f"Получение ключей для пользователя: {user_id}", extra={'user_id': 'PromptManager'})
+            api_keys = session.query(APIKeys).filter_by(user_id=user_id).all()
+            result = [a.to_dict() for a in api_keys]
+        finally:
+            session.close()
+        return result
+    
+    def get_user_by_api_key(self, api_key):
+        session = self.Session()
+        try:
+            logger.info(f"Получение пользователя по ключу", extra={'user_id': 'PromptManager'})
+            api_key = session.query(APIKeys).filter_by(api_key=api_key).first()
+            return api_key.user_id
+        finally:
+            session.close()
+        

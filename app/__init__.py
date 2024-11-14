@@ -4,7 +4,6 @@ from config.config_flask import ConfigFlask
 from service_registry import register_service
 from app.database import init_db, set_db_globals
 from app.services.s3 import init_s3_manager
-from app.routes import register_routes
 from app.services.openai import init_openai
 from app.utils.logger import setup_logger
 from flask_socketio import SocketIO
@@ -17,7 +16,6 @@ def create_app():
 
     app.config.from_object(ConfigFlask)
 
-    
 
     # Инициализация базы данных
     try:
@@ -57,10 +55,18 @@ def create_app():
         logger.error(f"Ошибка при инициализации S3: {e}", extra={'user_id': 'init'})
         raise
 
+    
     # Инициализация SocketIO
     socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
     register_service('socketio', socketio)
 
+    # Проверьте, что socketio зарегистрирован
+    if socketio is None:
+        raise RuntimeError("SocketIO не был правильно инициализирован!")
+
+
+
+    from app.routes import register_routes
     # Регистрация маршрутов
     try:
         register_routes(app)
@@ -70,7 +76,7 @@ def create_app():
         raise
 
     # Настройка CORS
-    CORS(app, resources={r"/*": {"origins": app.config['CORS_ORIGINS']}})
+    CORS(app, resources={r"/*": {"origins": "*"}})
     #celery = make_celery(app)
     #app.celery = celery
 

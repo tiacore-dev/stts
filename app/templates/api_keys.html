@@ -15,9 +15,7 @@
     
     <button id="createApiKey" class="btn btn-primary mt-3">Create API Key</button>
 
-    <!-- Section to refresh the existing API key -->
-    <h2 class="mt-5">Refresh API Key</h2>
-    <button id="refreshApiKey" class="btn btn-secondary mt-3">Refresh API Key</button>
+
 
     <!-- Hidden field for API key -->
     <div id="apiKeySection" style="display:none; margin-top: 20px;">
@@ -25,6 +23,12 @@
         <input type="text" id="apiKeyInput" class="form-control" readonly>
         <button id="copyApiKey" class="btn btn-success mt-3">Copy API Key</button>
     </div>
+
+    
+    <!-- Список существующих ключей -->
+    <h2 class="mt-5">Существующие API ключи</h2>
+    <div id="apiKeysList"></div> <!-- Сюда будет выводиться список ключей -->
+    
 
     <div id="responseMessage" style="margin-top: 15px;"></div>
 </div>

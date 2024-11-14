@@ -37,7 +37,7 @@ def get_username():
     return jsonify(username), 200
 
 
-@account_bp.route('/set_api_token', methods=['POST'])
+@account_bp.route('/api-key/create', methods=['POST'])
 @jwt_required() 
 def set_api_token():
     data = request.json
@@ -53,19 +53,29 @@ def set_api_token():
     else:
         return jsonify({"error": "Database error"}), 500
 
-@account_bp.route('/refresh_api_token', methods=['PATCH'])
+@account_bp.route('/api-key/delete', methods=['DELETE'])
 @jwt_required()  # Требуется авторизация с JWT
-def refresh_api_token():
+def delete_api_token():
     data = request.json
-    comment = data.get('comment')
+    key_id = data.get('key_id')
     current_user = get_jwt_identity()
     from app.database.managers.api_keys_manager import APIKeysManager
     db = APIKeysManager()
-    logger.info(f"Запрос о новом API ключе от пользователя: {current_user}", extra={'user_id': current_user['login']})
+    logger.info(f"Запрос об удалении API ключа от пользователя: {current_user}", extra={'user_id': current_user['login']})
     
-    api_key = db.refresh_api_key(current_user['user_id'], comment)
+    api_key = db.delete_api_key(key_id)
     if api_key:
-        return jsonify({"message": "API key updated successfully", "api_key": api_key}), 200  # Возвращаем ключ
+        return jsonify({"message": "API key deleted successfully"}), 200  # Возвращаем ключ
     else:
         return jsonify({"error": "Database error"})
 
+@account_bp.route('/api-key/all', methods=['GET'])
+@jwt_required()
+def get_api_tokens():
+    current_user = get_jwt_identity()
+    from app.database.managers.api_keys_manager import APIKeysManager
+    db = APIKeysManager()
+    logger.info(f"Запрос всех API ключей от пользователя: {current_user}", extra={'user_id': current_user['login']})
+    api_keys=db.get_api_keys(current_user['user_id'])
+    logger.info(f"{api_keys}", extra={'user_id': current_user['login']})
+    return jsonify(api_keys), 200

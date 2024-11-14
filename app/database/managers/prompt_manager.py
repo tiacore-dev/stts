@@ -14,7 +14,7 @@ class PromptManager:
     def add_prompt(self, user_id, prompt_name, text, use_automatic=False):
         session = self.Session()
         logger.info("Сохранение промпта в базу данных.", extra={'user_id': 'PromptManager'})
-        prompt_id = uuid.uuid4()
+        prompt_id = str(uuid.uuid4())
         new_prompt = Prompt(prompt_id=prompt_id, user_id=user_id, prompt_name=prompt_name, text=text, use_automatic=use_automatic)
         session.add(new_prompt)
         session.commit()

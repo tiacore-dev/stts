@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import Response, jsonify, render_template
 import logging
 import tempfile
-
+from app.utils.upload_audio import process_and_upload_file
 
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
@@ -19,19 +19,13 @@ def manage_audio():
     return render_template('manage_audio.html')
 
 
-@audio_bp.route('/test', methods=['POST'])
-@jwt_required()
-def test():
-    from app_celery.tasks.audio_tasks import process_and_upload_file_task
-    task = process_and_upload_file_task.delay("arg1", "arg2")
-    return task.id
+
 
 
 
 @audio_bp.route('/audio/upload', methods=['POST'])
 @jwt_required()
 def upload_audio():
-    from app_celery.tasks.audio_tasks import process_and_upload_file_task
     current_user = get_jwt_identity()
     user_login = str(current_user['login'])
     logger.info(f"Пользователь {user_login} прислал файлы для загрузки.", extra={'user_id': user_login})
@@ -44,22 +38,22 @@ def upload_audio():
         logger.error(f"Пользователь {user_login} не выбрал файлы для загрузки.", extra={'user_id': user_login})
         return jsonify({'error': 'No files provided'}), 400
 
-    tasks = []
+    result = []
     logger.info(f"Начата обработка файлов.", extra={'user_id': user_login})
 
     current_app.extensions['socketio'].emit('upload_progress', {'message': 'Загрузка началась', 'status': 'started'}, room=user_login)
 
     # Цикл по файлам и именам
     for file, file_name_input in zip(files, file_names):
-        temp_file = tempfile.NamedTemporaryFile(delete=False)
-        temp_file_path = temp_file.name
-        file.save(temp_file_path)
+        # Передаем сам файл в функцию обработки
+       
+        upload_result = process_and_upload_file(file, current_user['user_id'], file_name_input, user_login)
+        audio_id = upload_result.get('audio_id')
 
-        # Подготавливаем задачу Celery для обработки файла
-        task = process_and_upload_file_task.delay(temp_file_path, current_user['user_id'], file_name_input, user_login)
-        tasks.append({"file_name": file_name_input, "task_id": task.id})
+        result.append({"file_name": file_name_input, "audio_id": audio_id})
 
-    return jsonify({"tasks": tasks}), 200
+    return jsonify(result), 200
+
 
 
 #temp_file_path, current_user['user_id'], file_name_input, user_login
@@ -133,7 +127,7 @@ def delete_file(audio_id):
 
     try:
         # Удаляем файл из S3
-        s3_manager.delete_file(bucket_name,audio_id + file_record.s3_key)
+        s3_manager.delete_file(bucket_name,file_record.s3_key)
         audio_id=file_record.audio_id
         db.delete_audio_file(audio_id)  # Метод для удаления записи из базы
         logger.info(f"Файл {audio_id} успешно удален.", extra={'user_id': current_user['login']})
@@ -169,7 +163,7 @@ def download_file_bytes():
 
     try:
         # Получаем файл из S3
-        audio_bytes = s3_manager.get_file(bucket_name, audio_id + file_record.s3_key)
+        audio_bytes = s3_manager.get_file(bucket_name, file_record.s3_key)
         if audio_bytes is None:
             logger.error(f"Не удалось получить содержимое файла '{audio_id}' из S3.", extra={'user_id': current_user['login']})
             return jsonify({'error': 'Could not retrieve audio file'}), 500
@@ -182,12 +176,12 @@ def download_file_bytes():
 
 @audio_bp.route('/audio/<audio_id>/download_url', methods=['GET'])
 @jwt_required()
-async def download_file(audio_id):
+def download_file(audio_id):
     from app.database.managers.audio_manager import AudioFileManager
     db = AudioFileManager()
     from app.services.s3 import get_s3_manager, get_bucket_name
     current_user = get_jwt_identity()
-    audio_id = request.args.get('audio_id')
+    #audio_id = request.args.get('audio_id')
 
     if not audio_id:
         return jsonify({'error': 'No file name provided'}), 400
@@ -200,7 +194,7 @@ async def download_file(audio_id):
         return jsonify({'error': 'File not found or access denied'}), 404
 
     # Генерируем временный URL для скачивания файла
-    url = await s3_manager.generate_presigned_url(bucket_name, audio_id + file_record.s3_key)
+    url = s3_manager.generate_presigned_url(bucket_name, file_record.s3_key)
 
     if url:
         return jsonify({'url': url}), 200

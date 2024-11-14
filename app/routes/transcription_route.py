@@ -24,6 +24,8 @@ def transcription_result():
 
 
 
+
+
 @transcription_bp.route('/transcription/create', methods=['POST'])
 @jwt_required()
 def create_transcription():
@@ -87,27 +89,7 @@ def get_transcriptions():
 
 
 
-@transcription_bp.route('/api/transcription/<transcription_id>', methods=['GET'])
-@jwt_required()
-def get_transcription_by_id(transcription_id):
-    current_user = get_jwt_identity()
-    logger.info(f"Запрос на получение транскрипции по transcription_id: {transcription_id} для пользователя: {current_user}", extra={'user_id': current_user})
-    from app.database.managers.transcription_manager import TranscriptionManager
-    
-    db = TranscriptionManager()
-    transcription = db.get_transcription_by_id(transcription_id)
 
-    if transcription:
-        return jsonify({
-            'transcription_id': transcription.transcription_id,  # Убедитесь, что это поле существует
-            'text': transcription.text,
-            'analysis': transcription.analysis,
-            'prompt': transcription.prompt,
-            'tokens': transcription.tokens
-        }), 200
-    else:
-        logger.warning("Транскрипция не найдена.", extra={'user_id': current_user})
-        return jsonify({"msg": "Transcription not found"}), 404
 
 
 @transcription_bp.route('/transcription/<transcription_id>/view', methods=['GET'])
@@ -118,8 +100,6 @@ def get_transcription_view(transcription_id):
     
     # Передаем только transcription_id в шаблон
     return render_template('transcription/transcription_details.html', transcription_id=transcription_id)
-
-
 
 
 
