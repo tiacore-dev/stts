@@ -16,6 +16,6 @@ flask-socketio==5.3.2
 eventlet==0.33.3
 flask[async]==2.3.3
 aiohttp==3.8.5
-celery==5.4.7
+celery==5.4.0
 flower==1.2.0
 redis==5.0.1
