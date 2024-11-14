@@ -13,9 +13,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 20s  # Увеличьте интервал
+      timeout: 10s
+      retries: 10  # Увеличьте количество попыток
 
   alembic:
     build: .
@@ -25,10 +25,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      web:
-        condition: service_healthy
     volumes:
       - .:/app
+    healthcheck:
+      test: ["CMD", "bash", "-c", "alembic current | grep -q 'head'"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
 
 
   web:
@@ -38,7 +41,7 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
-      db:
+      alembic:
         condition: service_healthy
       redis:
         condition: service_healthy

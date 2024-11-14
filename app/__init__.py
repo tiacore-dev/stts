@@ -1,5 +1,6 @@
 from flask_jwt_extended import JWTManager
 from flask import Flask
+from app.api import register_namespaces
 from config.config_flask import ConfigFlask
 from service_registry import register_service
 from app.database import init_db, set_db_globals
@@ -8,6 +9,7 @@ from app.services.openai import init_openai
 from app.utils.logger import setup_logger
 from flask_socketio import SocketIO
 from flask_cors import CORS
+from flask_restx import Api
 #from app_celery import make_celery
 
 def create_app():
@@ -74,6 +76,18 @@ def create_app():
     except Exception as e:
         logger.error(f"Ошибка при регистрации маршрутов: {e}", extra={'user_id': 'init'})
         raise
+
+    # Инициализация API
+    api = Api(app, doc='/swagger', security='apiKey', authorizations={
+        'apiKey': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'API-Key',
+            'description': 'Добавьте API-ключ в заголовок `Authorization``'
+            }})
+     # Регистрация маршрутов
+    register_namespaces(api)
+
 
     # Настройка CORS
     CORS(app, resources={r"/*": {"origins": "*"}})
