@@ -19,11 +19,13 @@ services:
 
   alembic:
     build: .
-    command: bash -c "alembic downgrade base && alembic upgrade head"
+    command: bash -c "alembic upgrade head"
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
       db:
+        condition: service_healthy
+      web:
         condition: service_healthy
     volumes:
       - .:/app
@@ -38,8 +40,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      alembic:
-        condition: service_started
       redis:
         condition: service_healthy
     volumes:
