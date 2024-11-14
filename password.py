@@ -18,8 +18,7 @@ from app.database.managers.user_manager import UserManager
 db = UserManager()
 
 
-if db.user_exists(login):
-    db.delete_user(login)
+if not db.user_exists(login):
+    db.add_user(username, login, password, user_type='admin')
+    print('New admin added successfully')
 
-db.add_user(username, login, password, user_type='admin')
-print('New admin added successfully')

@@ -46,6 +46,17 @@ services:
       - .:/app
     command: python run.py
 
+  init_password:
+    build: .
+    command: python password.py  # Запуск скрипта для добавления админа
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      web:
+        condition: service_healthy
+    volumes:
+      - .:/app
+
   redis:
     image: redis:alpine
     ports:
