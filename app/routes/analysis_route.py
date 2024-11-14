@@ -3,7 +3,6 @@ from flask import Blueprint, jsonify, request, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import logging
 from app.utils.db_get import get_prompt, get_transcription
-import asyncio
 from app.utils.db_get import get_audio_name, get_prompt_name
 
 logger = logging.getLogger('chatbot')
@@ -23,7 +22,7 @@ def analysis_result():
 
 @analysis_bp.route('/analysis/create', methods=['POST'])
 @jwt_required()
-async def create_analysis():
+def create_analysis():
     from app.database.managers.analysis_manager import AnalysisManager
     db = AnalysisManager()
     data = request.json
@@ -36,20 +35,18 @@ async def create_analysis():
     prompt = get_prompt(prompt_id)
     
     # Создаем задачи анализа текста для каждого transcription_id
-    tasks = []
+    analysis = []
     for transcription_id in transcription_ids:
         transcription = get_transcription(transcription_id)  # Получаем транскрипцию
-        tasks.append(analyze_text(prompt, transcription))  # Добавляем задачу анализа текста
+        analysis.append(analyze_text(prompt, transcription))  # Добавляем задачу анализа текста
 
     logger.info(f"Начат анализ транскрибаций.", extra={'user_id': current_user['login']})
     
     # Выполняем все задачи параллельно
     try:
-        analysis_results = await asyncio.gather(*tasks, return_exceptions=True)
-        
         # Обрабатываем результаты анализа и сохраняем только успешные
         analysis_ids = []
-        for transcription_id, result in zip(transcription_ids, analysis_results):
+        for transcription_id, result in zip(transcription_ids, analysis):
             if not isinstance(result, Exception):
                 text, tokens = result
                 analysis_id = db.add_analysis(text, current_user['user_id'], prompt_id, transcription_id, tokens)

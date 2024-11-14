@@ -14,22 +14,7 @@ $(document).ready(function() {
             },
             success: function(response) {
                 console.log('Токен валидный, пользователь: ', response.logged_in_as);
-
-                // Запрос имени пользователя
-                $.ajax({
-                    url: '/get_username',  // Маршрут для получения имени пользователя
-                    type: 'GET',
-                    headers: {
-                        'Authorization': 'Bearer ' + token
-                    },
-                    success: function(username) {
-                        // Вставляем имя пользователя в HTML
-                        $('#username').text(username);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Ошибка получения имени пользователя:', error);
-                    }
-                });
+                loadApiKeys();
             },
             error: function(xhr, status, error) {
                 console.error('Ошибка проверки токена:', error);
@@ -43,7 +28,7 @@ $(document).ready(function() {
         const comment = $('#comment').val();
         
         $.ajax({
-            url: '/set_api_token',
+            url: '/api-key/create',
             type: 'POST',
             contentType: 'application/json',
             headers: {
@@ -54,6 +39,7 @@ $(document).ready(function() {
                 $('#apiKeySection').show();  // Показываем секцию с ключом
                 $('#apiKeyInput').val(response.api_key);  // Заполняем поле с API ключом
                 alert('Ключ успешно создан! Скопируйте его, так как он больше не будет отображаться.');
+                loadApiKeys();
             },
             error: function(xhr) {
                 alert('Ошибка создания API ключа');
@@ -61,28 +47,52 @@ $(document).ready(function() {
         });
     });
 
-    // Event listener for refreshing the API key
-    $('#refreshApiKey').click(function() {
-        const comment = $('#comment').val();
-
+    // Event listener для удаления API ключа
+    function deleteApiKey(keyId) {
         $.ajax({
-            url: '/refresh_api_token',
-            type: 'PATCH',
+            url: '/api-key/delete',  // Удаление API ключа
+            type: 'DELETE',
             contentType: 'application/json',
             headers: {
                 'Authorization': 'Bearer ' + token
             },
-            data: JSON.stringify({ comment: comment }),
+            data: JSON.stringify({ key_id: keyId }),
             success: function(response) {
-                $('#apiKeySection').show();  // Показываем секцию с ключом
-                $('#apiKeyInput').val(response.api_key);  // Заполняем поле с API ключом
-                alert('Ключ успешно обновлен! Скопируйте его, так как он больше не будет отображаться.');
+                alert('API ключ удален');
+                loadApiKeys();  // Обновляем список ключей
             },
             error: function(xhr) {
-                alert('Ошибка обновления API ключа');
+                alert('Ошибка удаления API ключа');
             }
         });
-    });
+    }
+
+    // Загружаем все API ключи при старте страницы
+    function loadApiKeys() {
+        $.ajax({
+            url: '/api-key/all',  // Получение всех API ключей
+            type: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            },
+            success: function(response) {
+                const apiKeys = response;
+                $('#apiKeysList').empty();  // Очищаем список перед добавлением новых ключей
+                apiKeys.forEach(function(apiKey) {
+                    const apiKeyItem = $('<div>').addClass('api-key-item').text(`Comment: ${apiKey.comment}`);
+                    const deleteButton = $('<button>').addClass('btn btn-danger ml-2').text('Delete').click(function() {
+                        deleteApiKey(apiKey.key_id);
+                    });
+                    apiKeyItem.append(deleteButton);
+                    $('#apiKeysList').append(apiKeyItem);
+                });
+            },
+            error: function(xhr) {
+                alert('Ошибка получения API ключей');
+            }
+        });
+    }
+
 
     // Event listener for copying the API key
     $('#copyApiKey').click(function() {

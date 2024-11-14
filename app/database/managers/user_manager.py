@@ -10,7 +10,7 @@ class UserManager:
     def add_user(self, username, login, password, user_type='user'):
         """Добавляем пользователя стандартно"""
         session = self.Session()
-        user_id = uuid.uuid4()
+        user_id = str(uuid.uuid4())
         new_user = User(user_id=user_id, username=username, login=login,  user_type=user_type)
         new_user.set_password(password)  # Устанавливаем хэш пароля
         session.add(new_user)

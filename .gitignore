@@ -9,6 +9,8 @@ __pycache__/
 # C extensions
 *.so
 
+beack_up_process_audio
+
 audio_files_examples/
 
 # Distribution / packaging

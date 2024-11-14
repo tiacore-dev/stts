@@ -20,7 +20,7 @@ class S3Manager:
             config=Config(s3={'addressing_style': 'path'})
         )
 
-    def upload_file(self, file_name, bucket_name, object_name=None):
+    def upload_file(self, file_name, bucket_name, object_name):
         if object_name is None:
             object_name = file_name
         logger.info(f"Загрузка файла '{file_name}' в bucket '{bucket_name}' с именем '{object_name}'.", extra={'user_id': 's3'})
@@ -39,7 +39,7 @@ class S3Manager:
         except ClientError as e:
             logger.error(f"Ошибка при загрузке файла: {e}", extra={'user_id': 's3'})
 
-    def download_file(self, bucket_name, object_name, file_name=None):
+    def download_file(self, bucket_name, object_name, file_name):
         if file_name is None:
             file_name = object_name
         logger.info(f"Скачивание файла '{object_name}' из bucket '{bucket_name}' в '{file_name}'.", extra={'user_id': 's3'})

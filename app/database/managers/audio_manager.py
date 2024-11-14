@@ -10,10 +10,10 @@ class AudioFileManager:
     def __init__(self):
         self.Session = Session
 
-    def add_audio_file(self, user_id, file_name, file_extension, file_size, bucket_name, s3_key, transcribed=False):
+    def add_audio_file(self, user_id, file_name, file_extension, file_size, bucket_name=None, s3_key=None, url=None, transcribed=False):
         session = self.Session()
         logger.info(f"Сохранение информации о загруженном аудиофайле '{file_name}' для пользователя '{user_id}'.", extra={'user_id': 'AudioManager'})
-        audio_id = uuid.uuid4()
+        audio_id = str(uuid.uuid4())
         try:
             new_file = AudioFile(
                 audio_id=audio_id,
@@ -23,6 +23,7 @@ class AudioFileManager:
                 file_size=file_size,
                 bucket_name=bucket_name,
                 s3_key=s3_key,
+                url=url,
                 transcribed=transcribed
             )
             session.add(new_file)

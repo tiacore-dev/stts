@@ -1,5 +1,5 @@
 from app.database.db_setup import Base
-from sqlalchemy import Column, String,  Float, DateTime, Boolean
+from sqlalchemy import Column, String,  Float, DateTime, Boolean, Text
 from datetime import datetime
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
@@ -13,8 +13,9 @@ class AudioFile(Base):
     file_extension = Column(String(255), nullable=False)
     file_size = Column(Float, nullable=False)  # Размер файла в байтах
     upload_date = Column(DateTime, default=datetime.utcnow)  # Дата загрузки файла
-    bucket_name = Column(String(255), nullable=False)  # Имя S3 bucket
-    s3_key = Column(String(255), nullable=False)  # Путь к файлу в S3
+    bucket_name = Column(String(255))  # Имя S3 bucket
+    s3_key = Column(String(255))  # Путь к файлу в S3
+    url = Column(Text) #url по которому получили аудио
     transcribed = Column(Boolean)
     
 

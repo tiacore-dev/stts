@@ -1,5 +1,5 @@
 from app.database.db_setup import Base
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Text
 from datetime import datetime
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
@@ -10,7 +10,7 @@ class Logs(Base):
     log_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(String, nullable=False)  # Внешний ключ
     action = Column(String(255), nullable=False)  # Действие, которое было выполнено
-    message = Column(String(255), nullable=False)  # Сообщение лога
+    message = Column(Text, nullable=False)  # Сообщение лога
     timestamp = Column(DateTime, default=datetime.utcnow)  # Дата и время
 
     # Связи

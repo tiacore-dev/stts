@@ -13,7 +13,7 @@ class AnalysisManager:
     def add_analysis(self, text, user_id, prompt_id, transcription_id,  tokens):
         session = self.Session()
         logger.info("Сохранение анализа в базу данных.", extra={'user_id': 'AnalysisManager'})
-        analysis_id = uuid.uuid4()
+        analysis_id = str(uuid.uuid4())
         new_analysis = Analysis(analysis_id=analysis_id,
                                           user_id=user_id,                                           
                                            text=text,
