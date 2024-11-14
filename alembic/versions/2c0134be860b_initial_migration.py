@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    """# Создаем таблицу users
+    # Создаем таблицу users
     op.create_table(
         'users',
         sa.Column('user_id', sa.String, primary_key=True, autoincrement=False),
@@ -41,6 +41,8 @@ def upgrade() -> None:
         sa.Column('upload_date', sa.DateTime, default=datetime.utcnow),
         sa.Column('bucket_name', sa.String(255), nullable=False),
         sa.Column('s3_key', sa.String(255), nullable=False),
+        sa.Column('url', sa.Text),  # Добавлено
+        sa.Column('transcribed', sa.Boolean),  # Добавлено
         sa.ForeignKeyConstraint(['user_id'], ['users.user_id'])  # Внешний ключ
     )
 
@@ -99,11 +101,10 @@ def upgrade() -> None:
         sa.Column('comment', sa.Text),
         sa.ForeignKeyConstraint(['user_id'], ['users.user_id'])  # Внешний ключ
     )
-"""
 
 
 def downgrade() -> None:
-    """# Удаляем таблицу logs
+    # Удаляем таблицу logs
     op.drop_table('logs')
 
     # Удаляем таблицу transcriptions
@@ -117,4 +118,9 @@ def downgrade() -> None:
 
     # Удаляем таблицу users
     op.drop_table('users')
-"""
+
+    # Удаляем таблицу api_keys
+    op.drop_table('api_keys')
+
+    # Удаляем таблицу analysis
+    op.drop_table('analysis')
