@@ -6,6 +6,9 @@ logger = logging.getLogger('chatbot')
 
 account_bp = Blueprint('account', __name__)
 
+@account_bp.route('/health', methods=['GET'])
+def health_check():
+    return "OK", 200
 
 @account_bp.route('/api-keys', methods=['GET'])
 def api_key():
