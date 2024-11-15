@@ -9,6 +9,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 40s  # Увеличьте интервал
+      timeout: 20s
+      retries: 15  # Увеличьте количество попыток
     networks:
       - app_network
 
@@ -22,8 +27,14 @@ services:
         condition: service_healthy
     volumes:
       - .:/app
+    healthcheck:
+      test: ["CMD", "bash", "-c", "alembic current | grep -q 'head'"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
     networks:
       - app_network
+
 
   web:
     build: .
@@ -44,10 +55,15 @@ services:
     command: python run.py
     networks:
       - app_network
+    #healthcheck:
+      #test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      #interval: 10s
+      #timeout: 5s
+      #retries: 5
 
   init_password:
     build: .
-    command: python password.py
+    command: python password.py  # Запуск скрипта для добавления админа
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
@@ -55,8 +71,6 @@ services:
         condition: service_healthy
     volumes:
       - .:/app
-    networks:
-      - app_network
 
   redis:
     image: redis:alpine
@@ -70,9 +84,9 @@ services:
     networks:
       - app_network
 
+volumes:
+  postgres_data:
+
 networks:
   app_network:
     driver: bridge
-
-volumes:
-  postgres_data:
