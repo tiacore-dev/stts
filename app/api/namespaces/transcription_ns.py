@@ -26,6 +26,8 @@ class TranscriptionResource(Resource):
     @transcription_ns.expect(transcription_create_model_payload)
     @transcription_ns.marshal_with(transcription_create_model_response)
     def post(self):
+        logger.info(f"Вход в метод TranscriptionResource.post ")
+
         from app.database.managers.audio_manager import AudioFileManager
 
         db = AudioFileManager()
@@ -42,7 +44,9 @@ class TranscriptionResource(Resource):
         
         # Получаем аудиофайл по ссылке
         try:
+            logger.info("Начало загрузки аудиофайла по URL")
             response = requests.get(audio_url, timeout=300)
+            logger.info("Файл загружен успешно")
             if response.status_code != 200:
                 logger.error(f"Ошибка загрузки: {response.status_code} - {response.text}")
                 return jsonify({"error": "Failed to download audio file"}), 400
