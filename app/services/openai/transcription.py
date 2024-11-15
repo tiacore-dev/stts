@@ -3,6 +3,7 @@ from io import BytesIO
 import logging
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
+# Устанавливаем контекст SSL для openai
 
 
 # Класс BytesIO с именем

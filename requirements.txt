@@ -19,5 +19,6 @@ aiohttp==3.8.1
 celery==5.4.0
 flower==1.1.0
 redis==5.0.0
+urllib3>=1.26.0
 
 
