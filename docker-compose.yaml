@@ -48,11 +48,11 @@ services:
     volumes:
       - .:/app
     command: python run.py
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    #healthcheck:
+      #test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      #interval: 10s
+      #timeout: 5s
+      #retries: 5
 
   init_password:
     build: .
@@ -60,7 +60,7 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
-      web:
+      db:
         condition: service_healthy
     volumes:
       - .:/app
