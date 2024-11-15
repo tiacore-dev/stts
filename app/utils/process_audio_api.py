@@ -11,6 +11,10 @@ from app.utils.db_get import transcribed_audio
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
 
+def check_channels(file_record, file_extension):
+    audio_segment = AudioSegment.from_file(io.BytesIO(file_record), format=file_extension[1:])
+    channels = audio_segment.split_to_mono()
+    return len(channels)
 
 def process_and_transcribe_audio_1(file_record, user_id, audio_id, file_extension, transcription_id):
     from app.database.managers.transcription_manager import TranscriptionManager

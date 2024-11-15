@@ -1,7 +1,7 @@
 from flask import request, jsonify, current_app
 from flask_restx import Namespace, Resource
 import logging
-from app.utils.process_audio_api import process_and_transcribe_audio_1, process_and_transcribe_audio_2
+from app.utils.process_audio_api import process_and_transcribe_audio_1, process_and_transcribe_audio_2, check_channels
 import requests
 import os
 from urllib.parse import urlparse, unquote
@@ -31,7 +31,7 @@ class TranscriptionResource(Resource):
         db = AudioFileManager()
         # Извлекаем данные из запроса
         audio_url = request.json.get('audio_url')
-        channels = request.json.get('channels', 1)  # Если channels не передан, по умолчанию один канал
+        #channels = request.json.get('channels', 1)  # Если channels не передан, по умолчанию один канал
         new_filename = request.json.get('new_filename', None)  # Новое имя файла, если передано
         prompt = request.json.get('prompt', None)
 
@@ -53,15 +53,22 @@ class TranscriptionResource(Resource):
             logger.error(f"Ошибка при загрузке файла по URL {audio_url}: {e}")
             return jsonify({"error": "Error downloading audio file"}), 500
         
-        # Парсим URL и получаем путь без параметров
+       # Парсим URL и получаем путь без параметров
         parsed_url = urlparse(audio_url)
         path = parsed_url.path  # Здесь мы имеем только путь к файлу без параметров
 
         # Декодируем и получаем оригинальное название файла
         original_filename = os.path.basename(unquote(path))  # unquote декодирует URL-кодировку
-        # Извлекаем имя файла и расширение
-        logger.info(f"Оригинальное название: {original_filename}")
-        file_name, file_extension = os.path.splitext(original_filename)
+
+        # Извлекаем имя файла и расширение, если они существуют
+        if original_filename:
+            file_name, file_extension = os.path.splitext(original_filename)
+            logger.info(f"Оригинальное название файла: {original_filename}")
+        else:
+            # Если оригинальное название пустое, задаем значения по умолчанию
+            file_name, file_extension = "file", ".mp3"
+            logger.info(f"Не удалось извлечь название, используется дефолтное имя файла: {file_name}{file_extension}")
+
         logger.info(f"Получившиеся название и расширение файла: {file_name}, {file_extension}")
         
         # Если новое имя файла передано, используем его, иначе оставляем оригинальное
@@ -78,6 +85,8 @@ class TranscriptionResource(Resource):
             'user_id': user_id,
             'filename': final_filename
         })
+        channels = check_channels(audio_file, file_extension)
+        logger.info(f"Полученное число каналов: {channels}")
         if channels == 1:
             text = process_and_transcribe_audio_1(audio_file, user_id, audio_id, file_extension, prompt)
         elif channels == 2:

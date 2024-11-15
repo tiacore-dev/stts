@@ -1,5 +1,5 @@
 $(document).ready(function() {
-
+/*
     // Подключение к серверу WebSocket
     const socket = io.connect('http://147.45.145.212:5000');  // Замените на ваш URL
 
@@ -27,7 +27,7 @@ $(document).ready(function() {
 
         document.body.appendChild(notification);  // Добавляем уведомление в DOM
     });
-
+*/
 
     //const token = localStorage.getItem('jwt_token');
 
