@@ -9,10 +9,21 @@ from app.utils.db_get import get_audio_name
 import uuid
 from app.decorators import api_key_required
 from app.api.models import transcription_create_model_payload, transcription_create_model_response, transcription_model
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
+
+session = requests.Session()
+retry = Retry(
+    total=3,  # Количество попыток
+    backoff_factor=1,  # Время ожидания между попытками
+    status_forcelist=[500, 502, 503, 504]
+)
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('https://', adapter)
 
 transcription_ns = Namespace('api/transcription', description='Schedule Details operations')
 # Регистрируем модель в namespace
@@ -45,7 +56,7 @@ class TranscriptionResource(Resource):
         # Получаем аудиофайл по ссылке
         try:
             logger.info("Начало загрузки аудиофайла по URL")
-            response = requests.get(audio_url, timeout=300)
+            response = session.get(audio_url, timeout=300)
             logger.info("Файл загружен успешно")
             if response.status_code != 200:
                 logger.error(f"Ошибка загрузки: {response.status_code} - {response.text}")

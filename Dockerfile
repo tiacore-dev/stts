@@ -7,8 +7,10 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     gcc \
     libpq-dev \
-    ca-certificates \            
-    libssl-dev \                 
+    ca-certificates \
+    libssl-dev \
+    libcurl4-openssl-dev \  # Для поддержки HTTPS в curl
+    git \                    # Для работы с Git, если нужно
     && rm -rf /var/lib/apt/lists/*
 
 # Указываем рабочую директорию внутри контейнера
