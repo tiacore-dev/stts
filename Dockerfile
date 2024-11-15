@@ -1,17 +1,15 @@
-# Dockerfile
-
 # Используем официальный образ Python в качестве базового
 FROM python:3.9-slim
 
-# Устанавливаем необходимые зависимости, включая ffmpeg, curl, gcc и зависимости для Python
+# Устанавливаем необходимые зависимости, включая ffmpeg, curl, gcc, libpq-dev и библиотеки для SSL
 RUN apt-get update && apt-get install -y \
     curl \
     ffmpeg \
     gcc \
     libpq-dev \
+    ca-certificates \            # Устанавливаем сертификаты для SSL
+    libssl-dev \                 # Устанавливаем OpenSSL для работы с SSL/TLS
     && rm -rf /var/lib/apt/lists/*
-
-
 
 # Указываем рабочую директорию внутри контейнера
 WORKDIR /app
