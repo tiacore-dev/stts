@@ -4,7 +4,7 @@ from flask_restx import fields, Model
 analysis_create_model_payload = Model('AnalysisCreatePayload', {
     'transcription_id': fields.String(required=True, description='ID транскрипции для анализа'),
     'prompt': fields.String(required=False, description='Собственный промпт для анализа'),
-    'prompt_id': fields.Integer(required=False, description='ID промпта, существующего в базе данных')
+    'prompt_id': fields.String(required=False, description='ID промпта, существующего в базе данных')
 })
 
 analysis_create_model_response = Model('AnalysisCreateResponse', {

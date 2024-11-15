@@ -75,29 +75,6 @@ services:
       timeout: 5s
       retries: 5
 
-  celery:
-    build: .
-    command: celery -A celery_worker:celery worker --loglevel=info
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-    depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-    volumes:
-      - .:/app
-
-  flower:
-    image: mher/flower
-    command: ["celery", "-A", "celery_worker", "flower", "--address=0.0.0.0", "--port=${FLOWER_PORT}"]
-    ports:
-      - "${FLOWER_PORT}:5555"
-    depends_on:
-      redis:
-        condition: service_healthy
-      celery:
-        condition: service_started
 
 volumes:
   postgres_data:

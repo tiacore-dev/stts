@@ -85,6 +85,7 @@ def create_app():
             'name': 'API-Key',
             'description': 'Добавьте API-ключ в заголовок `Authorization``'
             }})
+    
      # Регистрация маршрутов
     register_namespaces(api)
 
