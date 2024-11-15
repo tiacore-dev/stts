@@ -35,7 +35,6 @@ services:
     networks:
       - app_network
 
-
   web:
     build: .
     dns:
@@ -53,16 +52,11 @@ services:
     volumes:
       - .:/app
     command: python run.py
+    network_mode: "host"
     networks:
       - app_network
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
-    #healthcheck:
-      #test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      #interval: 10s
-      #timeout: 5s
-      #retries: 5
 
   init_password:
     build: .
