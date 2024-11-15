@@ -15,4 +15,4 @@ port = os.getenv('FLASK_PORT')
 
 if __name__ == "__main__":
     app, socketio= create_app()
-    socketio.run(app, host="0.0.0.0", port=port, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
