@@ -42,7 +42,7 @@ class TranscriptionResource(Resource):
         
         # Получаем аудиофайл по ссылке
         try:
-            response = requests.get(audio_url, timeout=20)
+            response = requests.get(audio_url, timeout=300)
             if response.status_code != 200:
                 logger.error(f"Ошибка загрузки: {response.status_code} - {response.text}")
                 return jsonify({"error": "Failed to download audio file"}), 400
