@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     ca-certificates \
     libssl-dev \
-    libcurl4-openssl-dev \  # Для поддержки HTTPS в curl
+    libcurl4-openssl-dev \  
     && rm -rf /var/lib/apt/lists/*
 
 # Указываем рабочую директорию внутри контейнера
