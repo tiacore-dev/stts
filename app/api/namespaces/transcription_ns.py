@@ -2,17 +2,16 @@ from flask import request, jsonify, current_app
 from flask_restx import Namespace, Resource
 import logging
 from app.utils.process_audio_api import process_and_transcribe_audio_1, process_and_transcribe_audio_2, check_channels
-import requests
 import os
 from urllib.parse import urlparse, unquote
 from app.utils.db_get import get_audio_name
 import uuid
 from app.decorators import api_key_required
 from app.api.models import transcription_create_model_payload, transcription_create_model_response, transcription_model
-#from requests.adapters import HTTPAdapter
-#from urllib3.util.retry import Retry
 import subprocess
-
+from urllib.parse import urlparse, unquote
+import uuid
+from flask import jsonify
 
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
@@ -32,13 +31,7 @@ transcription_ns.models[transcription_create_model_payload.name] = transcription
 transcription_ns.models[transcription_create_model_response.name] = transcription_create_model_response
 transcription_ns.models[transcription_model.name] = transcription_model
 
-import subprocess
-import io
-import os
-from urllib.parse import urlparse, unquote
-import uuid
-from flask import jsonify
-from app.database.managers.audio_manager import AudioFileManager
+
 
 @transcription_ns.route('/create')
 class TranscriptionResource(Resource):
@@ -47,7 +40,7 @@ class TranscriptionResource(Resource):
     @transcription_ns.marshal_with(transcription_create_model_response)
     def post(self):
         logger.info(f"Вход в метод TranscriptionResource.post ")
-
+        from app.database.managers.audio_manager import AudioFileManager
         db = AudioFileManager()
         # Извлекаем данные из запроса
         audio_url = request.json.get('audio_url')
