@@ -19,7 +19,7 @@ logger = logging.getLogger('chatbot')
 session = requests.Session()
 retry = Retry(
     total=3,  # Количество попыток
-    backoff_factor=1,  # Время ожидания между попытками
+    backoff_factor=300,  # Время ожидания между попытками
     status_forcelist=[500, 502, 503, 504]
 )
 adapter = HTTPAdapter(max_retries=retry)
@@ -56,7 +56,15 @@ class TranscriptionResource(Resource):
         # Получаем аудиофайл по ссылке
         try:
             logger.info("Начало загрузки аудиофайла по URL")
-            response = session.get(audio_url, timeout=300)
+            try:
+                response = session.get(audio_url, timeout=400)
+                response.raise_for_status()  # Raise an exception for HTTP errors
+                print(response.status_code)
+                print(response.headers)
+            except requests.exceptions.Timeout:
+                print("Request timed out")
+            except requests.exceptions.RequestException as e:
+                print(f"Error during request: {e}")
             logger.info("Файл загружен успешно")
             if response.status_code != 200:
                 logger.error(f"Ошибка загрузки: {response.status_code} - {response.text}")
