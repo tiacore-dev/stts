@@ -52,29 +52,36 @@ class TranscriptionResource(Resource):
         user_id = request.user_id
         if not audio_url:
             return jsonify({"error": "Audio URL is required"}), 400
-        
+
         # Получаем аудиофайл по ссылке
         try:
             logger.info("Начало загрузки аудиофайла по URL")
+            response = None  # Инициализируем переменную, чтобы избежать ошибки
             try:
                 response = session.get(audio_url, timeout=400)
                 response.raise_for_status()  # Raise an exception for HTTP errors
                 print(response.status_code)
                 print(response.headers)
             except requests.exceptions.Timeout:
-                print("Request timed out")
+                logger.error("Request timed out")
+                return jsonify({"error": "Request timed out"}), 408  # Возвращаем статус 408 при тайм-ауте
             except requests.exceptions.RequestException as e:
-                print(f"Error during request: {e}")
+                logger.error(f"Error during request: {e}")
+                return jsonify({"error": f"Error during request: {str(e)}"}), 400
+            
             logger.info("Файл загружен успешно")
-            if response.status_code != 200:
+            
+            if response and response.status_code == 200:
+                audio_file = response.content  # Получаем содержимое аудиофайла
+                # Получаем размер файла из заголовка Content-Length
+                file_size = int(response.headers.get('Content-Length', 0))
+            else:
                 logger.error(f"Ошибка загрузки: {response.status_code} - {response.text}")
                 return jsonify({"error": "Failed to download audio file"}), 400
-            audio_file = response.content  # Получаем содержимое аудиофайла
-            # Получаем размер файла из заголовка Content-Length
-            file_size = int(response.headers.get('Content-Length', 0))
         except Exception as e:
             logger.error(f"Ошибка при загрузке файла по URL {audio_url}: {e}")
             return jsonify({"error": "Error downloading audio file"}), 500
+
         
        # Парсим URL и получаем путь без параметров
         parsed_url = urlparse(audio_url)
