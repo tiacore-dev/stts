@@ -78,6 +78,8 @@ class TranscriptionResource(Resource):
         # Извлекаем имя файла и расширение, если они существуют
         if original_filename:
             file_name, file_extension = os.path.splitext(original_filename)
+            if not file_extension:
+                file_extension = '.mp3'
             logger.info(f"Оригинальное название файла: {original_filename}")
         else:
             # Если оригинальное название пустое, задаем значения по умолчанию
