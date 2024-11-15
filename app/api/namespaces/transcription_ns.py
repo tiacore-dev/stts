@@ -58,7 +58,7 @@ class TranscriptionResource(Resource):
             logger.info("Начало загрузки аудиофайла по URL")
             response = None  # Инициализируем переменную, чтобы избежать ошибки
             try:
-                response = session.get(audio_url, timeout=400)
+                response = session.get(audio_url, timeout=600)
                 response.raise_for_status()  # Raise an exception for HTTP errors
                 print(response.status_code)
                 print(response.headers)
