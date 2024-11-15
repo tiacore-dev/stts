@@ -9,21 +9,22 @@ from app.utils.db_get import get_audio_name
 import uuid
 from app.decorators import api_key_required
 from app.api.models import transcription_create_model_payload, transcription_create_model_response, transcription_model
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+#from requests.adapters import HTTPAdapter
+#from urllib3.util.retry import Retry
+import subprocess
 
 
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
 
-session = requests.Session()
+"""session = requests.Session()
 retry = Retry(
     total=3,  # Количество попыток
     backoff_factor=300,  # Время ожидания между попытками
     status_forcelist=[500, 502, 503, 504]
 )
 adapter = HTTPAdapter(max_retries=retry)
-session.mount('https://', adapter)
+session.mount('https://', adapter)"""
 
 transcription_ns = Namespace('api/transcription', description='Schedule Details operations')
 # Регистрируем модель в namespace
@@ -58,7 +59,8 @@ class TranscriptionResource(Resource):
             logger.info("Начало загрузки аудиофайла по URL")
             response = None  # Инициализируем переменную, чтобы избежать ошибки
             try:
-                response = session.get(audio_url, timeout=600)
+                #response = session.get(audio_url, timeout=600)
+                response = subprocess.run(["curl", "-s", audio_url], capture_output=True, text=True, check=True)
                 response.raise_for_status()  # Raise an exception for HTTP errors
                 print(response.status_code)
                 print(response.headers)
