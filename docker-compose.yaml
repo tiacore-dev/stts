@@ -44,8 +44,8 @@ services:
       - "${FLASK_PORT}:${FLASK_PORT}"  
     environment:
       - DATABASE_URL=${DATABASE_URL}
-      - HTTP_PROXY=https://stts-dev.tiacore.com
-      - HTTPS_PROXY=https://stts-dev.tiacore.com
+      - HTTP_PROXY=https://dev.express-kinetika.ru
+      - HTTPS_PROXY=https://dev.express-kinetika.ru
       - SSL_CERT_FILE=/app/certs/fullchain.pem
       - SSL_KEY_FILE=/app/certs/privkey.pem
 
