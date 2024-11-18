@@ -10,6 +10,7 @@ from app.utils.logger import setup_logger
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from flask_restx import Api
+from datetime import timedelta
 #from app_celery import make_celery
 
 def create_app():
@@ -34,6 +35,7 @@ def create_app():
     try:
         jwt = JWTManager(app)
         register_service('jwt', jwt)
+        app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=5) 
         logger.info("JWT инициализирован.", extra={'user_id': 'init'})
     except Exception as e:
         logger.error(f"Ошибка при инициализации JWT: {e}", extra={'user_id': 'init'})
