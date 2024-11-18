@@ -12,7 +12,7 @@ import subprocess
 from urllib.parse import urlparse, unquote
 import uuid
 from flask import jsonify
-
+import requests
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
 
@@ -31,7 +31,19 @@ transcription_ns.models[transcription_create_model_payload.name] = transcription
 transcription_ns.models[transcription_create_model_response.name] = transcription_create_model_response
 transcription_ns.models[transcription_model.name] = transcription_model
 
-
+# Пример простого запроса
+def test_http_request():
+    try:
+        logger.info("Отправка тестового запроса к внешнему сайту.")
+        response = requests.get("https://www.google.com")
+        
+        if response.status_code == 200:
+            logger.info("Запрос успешен, статус: 200")
+        else:
+            logger.error(f"Ошибка при запросе, статус: {response.status_code}")
+    
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Ошибка при отправке запроса: {e}")
 
 @transcription_ns.route('/create')
 class TranscriptionResource(Resource):
@@ -39,7 +51,9 @@ class TranscriptionResource(Resource):
     @transcription_ns.expect(transcription_create_model_payload)
     @transcription_ns.marshal_with(transcription_create_model_response)
     def post(self):
-        logger.info(f"Вход в метод TranscriptionResource.post ")
+        # Вызовем тестовую функцию
+        test_http_request()
+        """logger.info(f"Вход в метод TranscriptionResource.post ")
         from app.database.managers.audio_manager import AudioFileManager
         db = AudioFileManager()
         # Извлекаем данные из запроса
@@ -110,7 +124,7 @@ class TranscriptionResource(Resource):
         # Возвращаем ID транскрипции и результат
         return jsonify({
             'transcription_id': transcription_id, 'transcription_text': text
-        })
+        })"""
 
 
 
