@@ -23,11 +23,11 @@ def process_and_transcribe_audio_1(file_record, user_id, audio_id, file_extensio
     logger.info("Начало транскрибации аудио.", extra={'user_id': user_id})
     transcription = transcribe_audio(file_record, file_extension)
     transcription_id = db.add_transcription_with_id(transcription_id, user_id, transcription, audio_id, tokens=None)
-    current_app.extensions['socketio'].emit('transcription_status', {
+    """current_app.extensions['socketio'].emit('transcription_status', {
         'status': 'completed', 
         'transcription_id': transcription_id, 
         'user_id': user_id
-    })
+    })"""
     return transcription
 
 
@@ -42,12 +42,12 @@ def process_and_transcribe_audio_2(file_record, user_id, audio_id, file_extensio
     logger.info("Начало транскрибации всего аудио.", extra={'user_id': user_id})
     transcriptions.append(transcribe_audio(file_record, file_extension))
     # Прогресс (например, после завершения обработки канала 1)
-    current_app.extensions['socketio'].emit('transcription_status', {
+    """current_app.extensions['socketio'].emit('transcription_status', {
         'status': 'in_progress', 
         'stage': 'main audio processed',
         'transcription_id': transcription_id,
         'user_id': user_id
-    })
+    })"""
     # Разделяем аудио на два канала
     channels = audio_segment.split_to_mono()
     channel1, channel2 = channels[0], channels[1]
@@ -64,20 +64,20 @@ def process_and_transcribe_audio_2(file_record, user_id, audio_id, file_extensio
     logger.info("Начало транскрибации левого канала.", extra={'user_id': user_id})
     transcriptions.append(transcribe_audio(channel1_bytes_value, file_extension))
     # Прогресс (например, после завершения обработки канала 1)
-    current_app.extensions['socketio'].emit('transcription_status', {
+    """current_app.extensions['socketio'].emit('transcription_status', {
         'status': 'in_progress', 
         'stage': 'channel_1_processed',
         'transcription_id': transcription_id,
         'user_id': user_id
-    })
+    })"""
     transcriptions.append(transcribe_audio(channel2_bytes_value, file_extension))
     # Прогресс (например, после завершения обработки канала 1)
-    current_app.extensions['socketio'].emit('transcription_status', {
+    """current_app.extensions['socketio'].emit('transcription_status', {
         'status': 'in_progress', 
         'stage': 'channel_2_processed',
         'transcription_id': transcription_id,
         'user_id': user_id
-    })
+    })"""
 
     
     for i, transcription in enumerate(transcriptions):
@@ -97,9 +97,11 @@ def process_and_transcribe_audio_2(file_record, user_id, audio_id, file_extensio
     else:
         logger.error(f"Ошибка установления транскрибированности для аудио с ID: {audio_id}", extra={'user_id': user_id})"""
     logger.info(f"Получена транскрипция с ID: {transcription_id}", extra={'user_id': user_id})
-    current_app.extensions['socketio'].emit('transcription_status', {
+    return dialog  
+
+
+"""current_app.extensions['socketio'].emit('transcription_status', {
         'status': 'completed', 
         'transcription_id': transcription_id, 
         'user_id': user_id
-    })
-    return dialog  # Возвращаем transcription_id как строку
+    })"""

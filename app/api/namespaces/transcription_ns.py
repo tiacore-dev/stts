@@ -98,12 +98,12 @@ class TranscriptionResource(Resource):
 
         # Начинаем процесс транскрипции
         transcription_id = str(uuid.uuid4())
-        current_app.extensions['socketio'].emit('transcription_status', {
+        """current_app.extensions['socketio'].emit('transcription_status', {
             'status': 'started', 
             'transcription_id': transcription_id, 
             'user_id': user_id,
             'filename': final_filename
-        })
+        })"""
         
         # Определяем количество каналов в аудиофайле
         channels = check_channels(audio_bytes, file_extension)
@@ -115,11 +115,10 @@ class TranscriptionResource(Resource):
             text = process_and_transcribe_audio_2(audio_bytes, user_id, audio_id, file_extension, transcription_id, prompt)
         else:
             return jsonify({"error": "Invalid number of channels"}), 400
-
         # Возвращаем ID транскрипции и результат
-        return jsonify({
+        return {
             'transcription_id': transcription_id, 'transcription_text': text
-        })
+        }
 
 
 
