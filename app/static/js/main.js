@@ -35,22 +35,25 @@ $(document).ready(function() {
             console.error('Refresh token отсутствует.');
             return;
         }
-        
+    
+        console.log('Обновление токена. Refresh token:', refreshToken);
+    
         return $.ajax({
             url: '/refresh',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ refresh_token: refreshToken }),
             success: function(response) {
+                console.log('Токен успешно обновлен. Новый токен:', response.jwt_token);
                 saveTokens(response.jwt_token, refreshToken);
             },
-            error: function() {
-                console.error('Ошибка при обновлении токена.');
-                // Если обновление не удалось, можно перенаправить пользователя на страницу входа
-                window.location.href = '/';
+            error: function(xhr) {
+                console.error('Ошибка при обновлении токена. Статус:', xhr.status);
+                window.location.href = '/';  // Редирект при неудачном обновлении
             }
         });
     }
+    
 
     // Функция для выполнения запроса с проверкой access token
     function withAuthRequest(settings) {
@@ -76,6 +79,7 @@ $(document).ready(function() {
 
     // Функция для сохранения токенов в localStorage
     function saveTokens(accessToken, refreshToken) {
+        console.log('Сохранение токенов. Access token:', accessToken, 'Refresh token:', refreshToken);
         localStorage.setItem('jwt_token', accessToken);
         localStorage.setItem('refresh_token', refreshToken);
     }
