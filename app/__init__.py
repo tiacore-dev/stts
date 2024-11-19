@@ -7,7 +7,7 @@ from app.database import init_db, set_db_globals
 from app.services.s3 import init_s3_manager
 from app.services.openai import init_openai
 from app.utils.logger import setup_logger
-from flask_socketio import SocketIO
+#from flask_socketio import SocketIO
 from flask_cors import CORS
 from flask_restx import Api
 from datetime import timedelta
@@ -42,8 +42,8 @@ def create_app():
     # Инициализация JWT
     try:
         jwt = JWTManager(app)
-        register_service('jwt', jwt)
-        app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1) 
+        #register_service('jwt', jwt)
+        app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=5) 
         logger.info(f"JWT инициализирован. {app.config['JWT_ACCESS_TOKEN_EXPIRES']}", extra={'user_id': 'init'})
     except Exception as e:
         logger.error(f"Ошибка при инициализации JWT: {e}", extra={'user_id': 'init'})
@@ -77,8 +77,6 @@ def create_app():
     #if socketio is None:
     #    raise RuntimeError("SocketIO не был правильно инициализирован!")
 
-
-
     from app.routes import register_routes
     # Регистрация маршрутов
     try:
@@ -99,8 +97,6 @@ def create_app():
     
      # Регистрация маршрутов
     register_namespaces(api)
-
-
     # Настройка CORS
     CORS(app, resources={r"/*": {"origins": "*"}})
     #celery = make_celery(app)

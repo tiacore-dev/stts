@@ -19,11 +19,15 @@ def account():
     return render_template('account.html')
 
 @account_bp.route('/protected', methods=['GET'])
-@jwt_required()  # Требуется авторизация с JWT
+@jwt_required()
 def protected():
-    current_user = get_jwt_identity()
-    logger.info(f"Запрос защищенного ресурса от пользователя: {current_user}", extra={'user_id': current_user['login']})
-    return jsonify(logged_in_as=current_user), 200
+    try:
+        current_user = get_jwt_identity()
+        logger.info(f"Пользователь авторизован: {current_user}")
+        return jsonify({"message": "Access granted"}), 200
+    except Exception as e:
+        logger.error(f"Ошибка авторизации: {str(e)}")
+        return jsonify({"error": "Authorization failed"}), 401
 
 
 @account_bp.route('/get_username', methods=['GET'])

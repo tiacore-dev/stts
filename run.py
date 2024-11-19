@@ -11,6 +11,19 @@ port = os.getenv('FLASK_PORT', 5064)
 #app, socketio = create_app()
 app = create_app()
 
+from flask_jwt_extended import exceptions
+from flask import jsonify
+
+@app.errorhandler(exceptions.JWTDecodeError)
+def handle_jwt_decode_error(e):
+    app.logger.error(f"Ошибка декодирования JWT: {str(e)}")
+    return jsonify({"error": "Invalid token"}), 422
+
+@app.errorhandler(422)
+def handle_unprocessable_entity(e):
+    app.logger.error(f"422 Error: {str(e)}")
+    return jsonify({"error": "Invalid input"}), 422
+
 # Запуск через Gunicorn будет автоматически управлять процессом запуска
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=port, debug=True)
