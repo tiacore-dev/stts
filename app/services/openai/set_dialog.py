@@ -7,7 +7,7 @@ logger = logging.getLogger('chatbot')
 
 
 
-async def set_dialog(transcribed_text, channel_1, channel_2, custom_prompt):
+def set_dialog(transcribed_text, channel_1, channel_2, custom_prompt):
     logger.info("Анализ текста с помощью OpenAI.", extra={'user_id': 'openai'})
 
     # Формируем сообщение пользователя, проверяя, есть ли второй канал
