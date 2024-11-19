@@ -7,7 +7,7 @@ from .audio_route import audio_bp
 from .logs_route import logs_bp
 from .analysis_route import analysis_bp
 from .status_route import status_bp
-from .socket_route import socket_bp
+
 
 
 
@@ -21,4 +21,4 @@ def register_routes(app: Flask):
     app.register_blueprint(logs_bp)
     app.register_blueprint(analysis_bp)
     app.register_blueprint(status_bp)
-    app.register_blueprint(socket_bp)
+
