@@ -54,7 +54,7 @@ services:
         condition: service_healthy
     volumes:
       - .:/app
-      - ./certs:/app/certs:ro
+      #- ./certs:/app/certs:ro
     command: gunicorn -w 1 -k eventlet -b 0.0.0.0:${FLASK_PORT} run:app
     networks:
       - stts-dev_app_network
