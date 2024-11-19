@@ -69,7 +69,7 @@ def create_app():
 
     
     # Инициализация SocketIO
-    socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
+    socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*", ping_timeout=600, ping_interval=25)
     register_service('socketio', socketio)
 
     # Проверьте, что socketio зарегистрирован
