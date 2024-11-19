@@ -11,6 +11,7 @@ from flask_socketio import SocketIO
 from flask_cors import CORS
 from flask_restx import Api
 from datetime import timedelta
+from werkzeug.middleware.proxy_fix import ProxyFix
 #from app_celery import make_celery
 
 def create_app():
@@ -18,7 +19,14 @@ def create_app():
 
 
     app.config.from_object(ConfigFlask)
-
+     # Добавляем ProxyFix для корректной обработки заголовков от прокси-сервера
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app,
+        x_for=1,  # Используем 1 прокси для заголовка X-Forwarded-For
+        x_proto=1,  # Учитываем X-Forwarded-Proto (HTTP/HTTPS)
+        x_host=1,  # Учитываем X-Forwarded-Host
+        x_port=1   # Учитываем X-Forwarded-Port
+    )
 
     # Инициализация базы данных
     try:
