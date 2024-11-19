@@ -25,7 +25,7 @@ transcription_ns.models[transcription_create_model_response.name] = transcriptio
 transcription_ns.models[transcription_model.name] = transcription_model
 
 # Пример простого запроса
-def test_http_request():
+"""def test_http_request():
     try:
         logger.info("Отправка тестового запроса к внешнему сайту.")
         response = requests.get("https://www.google.com")
@@ -36,7 +36,7 @@ def test_http_request():
             logger.error(f"Ошибка при запросе, статус: {response.status_code}")
     
     except requests.exceptions.RequestException as e:
-        logger.error(f"Ошибка при отправке запроса: {e}")
+        logger.error(f"Ошибка при отправке запроса: {e}")"""
 
 @transcription_ns.route('/create')
 class TranscriptionResource(Resource):
@@ -45,8 +45,8 @@ class TranscriptionResource(Resource):
     @transcription_ns.marshal_with(transcription_create_model_response)
     def post(self):
         # Вызовем тестовую функцию
-        test_http_request()
-        """logger.info(f"Вход в метод TranscriptionResource.post ")
+        #test_http_request()
+        logger.info(f"Вход в метод TranscriptionResource.post ")
         from app.database.managers.audio_manager import AudioFileManager
         db = AudioFileManager()
         # Извлекаем данные из запроса
@@ -119,7 +119,7 @@ class TranscriptionResource(Resource):
         # Возвращаем ID транскрипции и результат
         return jsonify({
             'transcription_id': transcription_id, 'transcription_text': text
-        })"""
+        })
 
 
 
