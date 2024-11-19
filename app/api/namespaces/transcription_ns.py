@@ -13,6 +13,7 @@ from urllib.parse import urlparse, unquote
 import uuid
 from flask import jsonify
 import requests
+import urllib.request
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
 
@@ -35,7 +36,7 @@ transcription_ns.models[transcription_model.name] = transcription_model
 def test_http_request():
     try:
         logger.info("Отправка тестового запроса к внешнему сайту.")
-        response = requests.get("https://www.google.com", verify=False)
+        response = urllib.request.urlopen('https://www.google.com')
         
         if response.status_code == 200:
             logger.info("Запрос успешен, статус: 200")

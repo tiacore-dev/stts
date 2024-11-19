@@ -38,14 +38,14 @@ services:
   web:
     build: .
     dns:
-      - 1.1.1.1
-      - 1.0.0.1
+      - 8.8.8.8
+      - 8.8.4.4
     ports:
       - "${FLASK_PORT}:${FLASK_PORT}"  
     environment:
       - DATABASE_URL=${DATABASE_URL}
-      #- HTTP_PROXY=http://localhost:80
-      #- HTTPS_PROXY=https://localhost:443
+      - HTTP_PROXY=http://localhost:80
+      - HTTPS_PROXY=http://localhost:443
       #- SSL_CERT_FILE=/app/certs/fullchain.pem
       #- SSL_KEY_FILE=/app/certs/privkey.pem
 
