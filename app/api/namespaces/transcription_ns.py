@@ -60,7 +60,7 @@ class TranscriptionResource(Resource):
 
         try:
             # Загружаем файл с помощью requests и получаем его содержимое в память
-            response = requests.get(audio_url, stream=True)
+            response = requests.get(audio_url)
 
             # Проверяем статус ответа
             if response.status_code == 200:
