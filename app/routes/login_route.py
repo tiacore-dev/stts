@@ -2,7 +2,7 @@
 from flask_jwt_extended import create_access_token
 from flask import jsonify, request, Blueprint, render_template
 from flask_jwt_extended import create_refresh_token, get_jwt_identity, verify_jwt_in_request
-
+import json
 
 
 login_bp = Blueprint('login', __name__)
@@ -47,13 +47,13 @@ def auth():
     user_id = db.get_user_id(login)
     # Генерируем Access и Refresh токены с дополнительной информацией
     
-    identity = {
+    identity = json.dumps({
         "user_id": user_id,
         "login": login
-    }
+    })
 
-    access_token = str(create_access_token(identity=identity))
-    refresh_token = str(create_refresh_token(identity=identity))
+    access_token = create_access_token(identity=identity)
+    refresh_token = create_refresh_token(identity=identity)
 
 
     return jsonify(access_token=access_token, refresh_token=refresh_token), 200
@@ -80,13 +80,14 @@ def register_user():
         # Генерируем JWT токен
     
     # Генерируем Access и Refresh токены с дополнительной информацией
-    identity = {
+    identity = json.dumps({
         "user_id": user_id,
         "login": login
-    }
+    })
 
-    access_token = str(create_access_token(identity=identity))
-    refresh_token = str(create_refresh_token(identity=identity))
+
+    access_token = create_access_token(identity=identity)
+    refresh_token = create_refresh_token(identity=identity)
     return jsonify(access_token=access_token, refresh_token=refresh_token), 200
 
     
@@ -108,6 +109,6 @@ def refresh():
     current_user = get_jwt_identity()
 
     # Генерация нового access токена
-    new_access_token = str(create_access_token(identity=current_user))
-    new_refresh_token = str(create_refresh_token(identity = current_user))
+    new_access_token = create_access_token(identity=current_user)
+    new_refresh_token = create_refresh_token(identity = current_user)
     return jsonify(access_token= new_access_token, refresh_token= new_refresh_token), 200
