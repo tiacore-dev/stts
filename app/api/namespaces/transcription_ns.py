@@ -109,9 +109,9 @@ class TranscriptionResource(Resource):
         logger.info(f"Полученное число каналов: {channels}")
         
         if channels == 1:
-            text = process_and_transcribe_audio_1(audio_bytes, user_id, audio_id, file_extension)
+            text = process_and_transcribe_audio_1(audio_bytes, user_id, audio_id, file_extension, transcription_id)
         elif channels == 2:
-            text = process_and_transcribe_audio_2(audio_bytes, user_id, audio_id, file_extension, prompt)
+            text = process_and_transcribe_audio_2(audio_bytes, user_id, audio_id, file_extension, transcription_id, prompt)
         else:
             return jsonify({"error": "Invalid number of channels"}), 400
 
