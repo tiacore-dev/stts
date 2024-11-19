@@ -7,11 +7,15 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     gcc \
     libpq-dev \
-    ca-certificates \
     libssl-dev \
     libcurl4-openssl-dev \
     dnsutils \
     && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    && update-ca-certificates
+
 
 # Указываем рабочую директорию внутри контейнера
 WORKDIR /app
@@ -32,8 +36,8 @@ RUN pip install gunicorn
 COPY ./certs /app/certs
 
 # Указываем контейнеру путь к сертификатам
-ENV SSL_CERT_FILE=/app/certs/fullchain.pem
-ENV SSL_KEY_FILE=/app/certs/privkey.pem
+#ENV SSL_CERT_FILE=/app/certs/fullchain.pem
+#ENV SSL_KEY_FILE=/app/certs/privkey.pem
 
 # Копируем весь код приложения в рабочую директорию
 COPY . .
