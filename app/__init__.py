@@ -19,7 +19,7 @@ def create_app():
 
 
     app.config.from_object(ConfigFlask)
-     # Добавляем ProxyFix для корректной обработки заголовков от прокси-сервера
+    # Добавляем ProxyFix для корректной обработки заголовков от прокси-сервера
     app.wsgi_app = ProxyFix(
         app.wsgi_app,
         x_for=1,  # Используем 1 прокси для заголовка X-Forwarded-For
