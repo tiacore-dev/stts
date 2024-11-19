@@ -23,11 +23,11 @@ WORKDIR /app
 # Копируем файл зависимостей в рабочую директорию
 COPY requirements.txt .
 
-COPY ./certs /app/certs 
+#COPY ./certs /app/certs 
 
 # Указываем контейнеру путь к сертификатам
-ENV SSL_CERT_FILE=/app/certs/fullchain.pem
-ENV SSL_KEY_FILE=/app/certs/privkey.pem
+##ENV SSL_CERT_FILE=/app/certs/fullchain.pem
+#ENV SSL_KEY_FILE=/app/certs/privkey.pem
 
 # Обновляем pip до последней версии
 RUN python -m pip install --upgrade pip

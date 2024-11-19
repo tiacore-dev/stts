@@ -13,18 +13,10 @@ from urllib.parse import urlparse, unquote
 import uuid
 from flask import jsonify
 import requests
-import urllib.request
+
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
 
-"""session = requests.Session()
-retry = Retry(
-    total=3,  # Количество попыток
-    backoff_factor=300,  # Время ожидания между попытками
-    status_forcelist=[500, 502, 503, 504]
-)
-adapter = HTTPAdapter(max_retries=retry)
-session.mount('https://', adapter)"""
 
 transcription_ns = Namespace('api/transcription', description='Schedule Details operations')
 # Регистрируем модель в namespace
@@ -36,7 +28,7 @@ transcription_ns.models[transcription_model.name] = transcription_model
 def test_http_request():
     try:
         logger.info("Отправка тестового запроса к внешнему сайту.")
-        response = urllib.request.urlopen('https://172.217.164.206')
+        response = requests.get("https://www.google.com", verify=False)
         
         if response.status_code == 200:
             logger.info("Запрос успешен, статус: 200")
