@@ -12,7 +12,11 @@ port = os.getenv('FLASK_PORT', 5064)
 app = create_app()
 
 from flask_jwt_extended import exceptions
-from flask import jsonify
+from flask import jsonify, request
+
+@app.before_request
+def log_request_info():
+    app.logger.debug(f"Headers: {request.headers}")
 
 @app.errorhandler(exceptions.JWTDecodeError)
 def handle_jwt_decode_error(e):
