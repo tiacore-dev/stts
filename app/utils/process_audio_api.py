@@ -31,7 +31,7 @@ def process_and_transcribe_audio_1(file_record, user_id, audio_id, file_extensio
     return transcription
 
 
-def process_and_transcribe_audio_2(file_record, user_id, audio_id, file_extension, transcription_id):
+def process_and_transcribe_audio_2(file_record, user_id, audio_id, file_extension, transcription_id, prompt):
     from app.database.managers.transcription_manager import TranscriptionManager
     db = TranscriptionManager()
 
@@ -89,7 +89,7 @@ def process_and_transcribe_audio_2(file_record, user_id, audio_id, file_extensio
 
     # Анализируем текст и сохраняем транскрипции для пользователя
     logger.info("Составление диалога.", extra={'user_id': user_id})
-    dialog, tokens_full = set_dialog(transcriptions[0], transcriptions[1], transcriptions[2])
+    dialog, tokens_full = set_dialog(transcriptions[0], transcriptions[1], transcriptions[2], prompt)
     transcription_id = db.add_transcription_with_id(transcription_id, user_id, dialog, audio_id, tokens_full)
     #is_set = transcribed_audio(audio_id)
     """if is_set:
