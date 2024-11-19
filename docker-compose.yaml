@@ -55,7 +55,7 @@ services:
     volumes:
       - .:/app
       - ./certs:/app/certs:ro
-    command: gunicorn -w 1 -k eventlet -b 0.0.0.0:${FLASK_PORT} --timeout 600 run:app
+    command: gunicorn -w 1 -k eventlet -b 0.0.0.0:5064 run:app
     networks:
       - stts-dev_app_network
 

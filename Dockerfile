@@ -36,4 +36,4 @@ RUN pip install gunicorn
 COPY . .
 
 # Указываем команду для запуска приложения
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:${FLASK_PORT}", "run:app"]
+#CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:${FLASK_PORT}", "run:app"]
