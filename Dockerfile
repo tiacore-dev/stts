@@ -19,10 +19,6 @@ WORKDIR /app
 # Копируем файл зависимостей в рабочую директорию
 COPY requirements.txt .
 
-# Указываем контейнеру путь к сертификатам
-ENV SSL_CERT_FILE=/app/certs/fullchain.pem
-ENV SSL_KEY_FILE=/app/certs/privkey.pem
-
 # Обновляем pip до последней версии
 RUN python -m pip install --upgrade pip
 
@@ -31,6 +27,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Устанавливаем Gunicorn
 RUN pip install gunicorn
+
+# Копируем сертификаты в контейнер (предполагается, что они находятся в папке certs на хосте)
+COPY ./certs /app/certs
+
+# Указываем контейнеру путь к сертификатам
+ENV SSL_CERT_FILE=/app/certs/fullchain.pem
+ENV SSL_KEY_FILE=/app/certs/privkey.pem
 
 # Копируем весь код приложения в рабочую директорию
 COPY . .
