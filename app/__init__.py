@@ -69,13 +69,13 @@ def create_app():
 
     
     # Инициализация SocketIO
-    socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
+    #socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
     #, ping_timeout=600, ping_interval=25
-    register_service('socketio', socketio)
+    #register_service('socketio', socketio)
 
     # Проверьте, что socketio зарегистрирован
-    if socketio is None:
-        raise RuntimeError("SocketIO не был правильно инициализирован!")
+    #if socketio is None:
+    #    raise RuntimeError("SocketIO не был правильно инициализирован!")
 
 
 
@@ -106,4 +106,4 @@ def create_app():
     #celery = make_celery(app)
     #app.celery = celery
 
-    return app, socketio
+    return app#, socketio

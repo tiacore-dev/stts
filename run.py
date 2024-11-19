@@ -8,7 +8,8 @@ load_dotenv()
 port = os.getenv('FLASK_PORT', 5064)
 
 # Создаем приложение
-app, socketio = create_app()
+#app, socketio = create_app()
+app = create_app()
 
 # Запуск через Gunicorn будет автоматически управлять процессом запуска
 if __name__ == "__main__":

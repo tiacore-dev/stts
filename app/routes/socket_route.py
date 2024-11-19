@@ -1,4 +1,4 @@
-from flask import Blueprint
+"""from flask import Blueprint
 from flask_socketio import emit, join_room, leave_room
 from service_registry import get_service
 
@@ -32,3 +32,4 @@ def on_join(room):
 def on_leave(room):
     leave_room(room)
     emit('response', {'message': f'Left room {room}'}, room=room)
+"""
