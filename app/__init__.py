@@ -43,7 +43,7 @@ def create_app():
     try:
         jwt = JWTManager(app)
         #register_service('jwt', jwt)
-        app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=5) 
+        app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24) 
         logger.info(f"JWT инициализирован. {app.config['JWT_ACCESS_TOKEN_EXPIRES']}", extra={'user_id': 'init'})
     except Exception as e:
         logger.error(f"Ошибка при инициализации JWT: {e}", extra={'user_id': 'init'})
