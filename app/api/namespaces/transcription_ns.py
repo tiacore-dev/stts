@@ -24,7 +24,7 @@ transcription_ns.models[transcription_create_model_payload.name] = transcription
 transcription_ns.models[transcription_create_model_response.name] = transcription_create_model_response
 transcription_ns.models[transcription_model.name] = transcription_model
 
-# Пример простого запроса
+"""# Пример простого запроса
 def test_http_request():
     try:
         logger.info("Отправка тестового запроса к внешнему сайту.")
@@ -36,7 +36,7 @@ def test_http_request():
             logger.error(f"Ошибка при запросе, статус: {response.status_code}")
     
     except requests.exceptions.RequestException as e:
-        logger.error(f"Ошибка при отправке запроса: {e}")
+        logger.error(f"Ошибка при отправке запроса: {e}")"""
 
 @transcription_ns.route('/create')
 class TranscriptionResource(Resource):
@@ -45,8 +45,8 @@ class TranscriptionResource(Resource):
     @transcription_ns.marshal_with(transcription_create_model_response)
     def post(self):
         # Вызовем тестовую функцию
-        test_http_request()
-        """logger.info(f"Вход в метод TranscriptionResource.post ")
+        #test_http_request()
+        logger.info(f"Вход в метод TranscriptionResource.post ")
         from app.database.managers.audio_manager import AudioFileManager
         db = AudioFileManager()
         # Извлекаем данные из запроса
@@ -59,18 +59,19 @@ class TranscriptionResource(Resource):
             return jsonify({"error": "Audio URL is required"}), 400
 
         try:
-            # Загружаем файл с помощью curl и получаем его содержимое в память
-            result = subprocess.run(["curl", "-s", audio_url], capture_output=True, check=True)
-            
-            if result.returncode == 0:
+            # Загружаем файл с помощью requests и получаем его содержимое в память
+            response = requests.get(audio_url, stream=True)
+
+            # Проверяем статус ответа
+            if response.status_code == 200:
                 logger.info("Файл успешно загружен")
-                audio_bytes = result.stdout  # Содержимое файла в памяти
+                audio_bytes = response.content  # Содержимое файла в памяти
             else:
-                logger.error(f"Ошибка при загрузке файла: {result.stderr.decode('utf-8')}")
+                logger.error(f"Ошибка при загрузке файла: {response.text}")
                 return jsonify({"error": "Ошибка при загрузке файла"}), 500
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Ошибка при выполнении команды: {e}")
-            return jsonify({"error": f"Ошибка при выполнении команды: {str(e)}"}), 400
+        except requests.RequestException as e:
+            logger.error(f"Ошибка при выполнении запроса: {e}")
+            return jsonify({"error": f"Ошибка при выполнении запроса: {str(e)}"}), 400
 
         # Парсим URL и получаем путь без параметров
         parsed_url = urlparse(audio_url)
@@ -117,7 +118,7 @@ class TranscriptionResource(Resource):
         # Возвращаем ID транскрипции и результат
         return jsonify({
             'transcription_id': transcription_id, 'transcription_text': text
-        })"""
+        })
 
 
 
