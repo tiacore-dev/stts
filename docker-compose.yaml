@@ -37,6 +37,8 @@ services:
 
 
   web:
+    tty: true
+    stdin_open: true
     build: .
     dns:
       - 8.8.8.8
@@ -55,8 +57,8 @@ services:
     volumes:
       - .:/app
       #- ./certs:/app/certs:ro
-    command: gunicorn -w 4 -b 0.0.0.0:${FLASK_PORT} --timeout 600 run:app
-    #command: gunicorn -w 4 -b 0.0.0.0:${FLASK_PORT} run:app
+    command: gunicorn -c gunicorn.conf.py run:app
+
     networks:
       - stts_app_network
 
