@@ -1,7 +1,7 @@
 /*
 $(document).ready(function() {
     // Проверка наличия токена в localStorage
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('access_token');
 
     // Если токен отсутствует, перенаправляем на страницу входа
     if (!token) {
@@ -100,7 +100,7 @@ $(document).ready(function() {
 
 // Загрузка всех промптов
 function loadPrompts() {
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('access_token');
     $.ajax({
         url: '/user_prompts',
         type: 'GET',

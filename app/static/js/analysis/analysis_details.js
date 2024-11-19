@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('access_token');
     const analysisId = window.location.pathname.split('/').pop();
 
     if (!token) {

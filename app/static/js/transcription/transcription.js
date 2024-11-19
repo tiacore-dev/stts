@@ -1,6 +1,6 @@
 $(document).ready(function() {
     // Проверка наличия токена в localStorage
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('access_token');
 
     if (!token) {
         window.location.href = '/';
@@ -43,7 +43,7 @@ $(document).ready(function() {
 
     // Обработка отправки аудиофайлов на сервер
     function processAudio(audioIds) {
-        const token = localStorage.getItem('jwt_token');
+        const token = localStorage.getItem('access_token');
         $('#loadingIcon').show();
         $('#submitButton').prop('disabled', true).text('Отправка...');
 
@@ -72,7 +72,7 @@ $(document).ready(function() {
 
     // Загрузка всех аудиофайлов с сервера
     function loadAudioFiles() {
-        const token = localStorage.getItem('jwt_token');
+        const token = localStorage.getItem('access_token');
         $.ajax({
             url: '/user_audio_files',  // Путь для получения списка аудиофайлов
             type: 'GET',

@@ -56,7 +56,7 @@ def auth():
     refresh_token = create_refresh_token(identity=identity)
 
 
-    return jsonify(jwt_token=access_token, refresh_token=refresh_token), 200
+    return jsonify(access_token=access_token, refresh_token=refresh_token), 200
 
 
 

@@ -29,17 +29,17 @@ $(document).ready(function() {
     });
 */
 
-    //const token = localStorage.getItem('jwt_token');
+    //const token = localStorage.getItem('access_token');
 
     // Проверка валидности токена
-    if (!localStorage.getItem('jwt_token')) {
+    if (!localStorage.getItem('access_token')) {
         window.location.href = '/';
     } else {
         $.ajax({
             url: '/protected',  // Защищённый маршрут для проверки токена
             type: 'GET',
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
             },
             success: function(response) {
                 loadFiles();  // Загрузка списка файлов
@@ -109,7 +109,7 @@ $(document).ready(function() {
             url: '/audio/upload',
             type: 'POST',
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
             },
             data: formData,
             processData: false,
@@ -136,7 +136,7 @@ $(document).ready(function() {
             url: `/audio/all?page=${page}`,
             type: 'GET',
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
             },
             success: function(response) {
                 let fileList = $('#fileList');
@@ -177,7 +177,7 @@ $(document).ready(function() {
         if (!confirm(`Вы уверены, что хотите удалить файл с ID '${audioId}'?`)) return;
 
         // Получаем токен из localStorage
-        /*const token = localStorage.getItem('jwt_token');
+        /*const token = localStorage.getItem('access_token');
         if (!token) {
             alert('Необходимо войти в систему, чтобы удалять файлы.');
             return;
@@ -187,7 +187,7 @@ $(document).ready(function() {
             url: `/audio/${audioId}/delete`,  // Динамически подставляем audioId в URL
             type: 'DELETE',
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
             },
             success: function() {
                 alert(`Файл с ID '${audioId}' успешно удален`);
@@ -208,7 +208,7 @@ $(document).ready(function() {
 
     window.downloadFile = function(audioId) {
         // Получаем токен из localStorage
-        /*const token = localStorage.getItem('jwt_token');
+        /*const token = localStorage.getItem('access_token');
         if (!token) {
             alert('Необходимо войти в систему, чтобы загружать файлы.');
             return;
@@ -219,7 +219,7 @@ $(document).ready(function() {
             url: `/audio/${audioId}/download_url`,  // Подставляем audioId в URL
             type: 'GET',
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
+                'Authorization': 'Bearer ' + localStorage.getItem('access_token')
             },
             success: function(response) {
                 if (response.url) {

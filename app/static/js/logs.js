@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('access_token');
     
     let offset = 0; // Начальный оффсет
     const limit = 10; // Количество записей на странице

@@ -1,6 +1,6 @@
 $(document).ready(function () {
     console.log('Управление промптами подключилось');
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('access_token');
 
     // Если токен отсутствует, перенаправляем на домашнюю страницу
     if (!token) {

@@ -2,7 +2,7 @@ $(document).ready(function() {
     // Проверка, есть ли боковое меню и jwt токен
     const hasSidebar = $('#sidebar').length > 0;
 
-    if (localStorage.getItem('jwt_token')) {
+    if (localStorage.getItem('access_token')) {
          $('#logoutButton').show();
         if (hasSidebar) {
             $('#sidebar').show();  // Показываем боковое меню
@@ -44,8 +44,8 @@ $(document).ready(function() {
             contentType: 'application/json',
             data: JSON.stringify({ refresh_token: refreshToken }),
             success: function(response) {
-                console.log('Токен успешно обновлен. Новый токен:', response.jwt_token);
-                saveTokens(response.jwt_token, refreshToken);
+                console.log('Токен успешно обновлен. Новый токен:', response.access_token);
+                saveTokens(response.access_token, refreshToken);
             },
             error: function(xhr) {
                 console.error('Ошибка при обновлении токена. Статус:', xhr.status);
@@ -57,7 +57,7 @@ $(document).ready(function() {
 
     // Функция для выполнения запроса с проверкой access token
     function withAuthRequest(settings) {
-        const token = localStorage.getItem('jwt_token');
+        const token = localStorage.getItem('access_token');
         if (!token) {
             window.location.href = '/';
             return;
@@ -69,7 +69,7 @@ $(document).ready(function() {
             if (xhr.status === 401) { // Если access token истек
                 await refreshAccessToken();
                 // Повторный запрос после обновления токена
-                settings.headers['Authorization'] = `Bearer ${localStorage.getItem('jwt_token')}`;
+                settings.headers['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`;
                 return $.ajax(settings);
             } else {
                 console.error('Ошибка при выполнении запроса:', xhr);
@@ -80,7 +80,7 @@ $(document).ready(function() {
     // Функция для сохранения токенов в localStorage
     function saveTokens(accessToken, refreshToken) {
         console.log('Сохранение токенов. Access token:', accessToken, 'Refresh token:', refreshToken);
-        localStorage.setItem('jwt_token', accessToken);
+        localStorage.setItem('access_token', accessToken);
         localStorage.setItem('refresh_token', refreshToken);
     }
 
@@ -98,7 +98,7 @@ $(document).ready(function() {
             contentType: 'application/json',
             data: JSON.stringify({ login: login, password: password }),
             success: function(response) {
-                saveTokens(response.jwt_token, response.refresh_token);
+                saveTokens(response.access_token, response.refresh_token);
                 $('#loginAlert').html('<div class="alert alert-success">Login successful!</div>');
                 window.location.href = '/account';
             },
@@ -114,7 +114,7 @@ $(document).ready(function() {
 
     // Кнопка выхода
     $('#logoutButton').on('click', function() {
-        localStorage.removeItem('jwt_token');
+        localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         window.location.href = '/';
     });
@@ -140,7 +140,7 @@ $(document).ready(function() {
             data: JSON.stringify({ username: username, login: login, password: password }),
             success: function(response) {
                 $('#registerAlert').html('<div class="alert alert-success">Registration successful! Redirecting...</div>');
-                saveTokens(response.jwt_token, response.refresh_token);
+                saveTokens(response.access_token, response.refresh_token);
                 window.location.href = '/account'; 
             },
             error: function() {
