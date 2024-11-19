@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.routes.forms import AudioForm
 import logging
 from app.utils.db_get import get_audio_name
+import json
 
 
 # Получаем логгер по его имени
@@ -31,6 +32,7 @@ def transcription_result():
 def create_transcription():
     from app_celery.tasks.transcription_tasks import process_and_transcribe_audio_task
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     audio_ids = request.json.get('audio_ids')  # Получаем список audio_id
     logger.info(f"Запрос транскрибации аудио с ID {audio_ids}", extra={'user_id': current_user['login']})
 
@@ -64,6 +66,7 @@ def get_transcriptions():
     from app.database.managers.transcription_manager import TranscriptionManager
     db = TranscriptionManager()
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     offset = request.args.get('offset', default=0, type=int)
     limit = request.args.get('limit', default=10, type=int)
     logger.info(f"Запрос транскрипций для пользователя: {current_user} с offset={offset} и limit={limit}", extra={'user_id': current_user['login']})
@@ -96,6 +99,7 @@ def get_transcriptions():
 @jwt_required()
 def get_transcription_view(transcription_id):
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     logger.info(f"Запрос на отображение транскрипции с transcription_id: {transcription_id} для пользователя: {current_user}", extra={'user_id': current_user})
     
     # Передаем только transcription_id в шаблон
@@ -111,6 +115,7 @@ def get_user_audio_files():
     from app.database.managers.audio_manager import AudioFileManager
     audio_manager = AudioFileManager()
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     logger.info(f"Запрос аудиофайлов для пользователя: {current_user}", extra={'user_id': current_user['login']})
     audio_files = audio_manager.get_audio_files_by_user_for_transcription(current_user['user_id'])
 

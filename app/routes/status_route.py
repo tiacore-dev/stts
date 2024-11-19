@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.celery_task import CeleryTask 
 import logging
 from app_celery.tasks.transcription_tasks import process_and_transcribe_audio_task
+import json
 
 logger = logging.getLogger('chatbot')
 
@@ -19,7 +20,7 @@ def status_page():
 def get_task_statuses():
     # Получаем текущего пользователя
     current_user = get_jwt_identity()
-    
+    current_user=json.loads(current_user)
     # Получаем список задач пользователя (должно быть реализовано)
     user_tasks = get_user_tasks(current_user['user_id'])  # Например, эта функция возвращает задачи для пользователя
     

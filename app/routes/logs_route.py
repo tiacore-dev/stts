@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask import render_template
 from flask_jwt_extended import  get_jwt_identity, jwt_required
+import json
 
 
 
@@ -15,6 +16,7 @@ def logs_page():
 @jwt_required()  # Требуется авторизация с JWT
 def admin_protected():
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     from app.database.managers.user_manager import UserManager
     db = UserManager()
     if not db.is_user_admin(current_user['user_id']):

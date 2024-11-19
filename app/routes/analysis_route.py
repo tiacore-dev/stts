@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 import logging
 from app.utils.db_get import get_prompt, get_transcription
 from app.utils.db_get import get_audio_name, get_prompt_name
+import json
 
 logger = logging.getLogger('chatbot')
 
@@ -29,6 +30,7 @@ def create_analysis():
     prompt_id = data['prompt_id']
     transcription_ids = data['transcription_ids']  # Получаем список transcription_id
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     logger.info(f"Запрос анализа транскрибаций с ID {transcription_ids} и промптом с ID: {prompt_id}.", extra={'user_id': current_user['login']})
     
     # Получаем prompt для анализа
@@ -67,6 +69,7 @@ def get_analysis():
     from app.database.managers.analysis_manager import AnalysisManager
     db = AnalysisManager()
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     offset = request.args.get('offset', default=0, type=int)  # Получаем offset из параметров запроса
     limit = request.args.get('limit', default=10, type=int)  # Получаем limit из параметров запроса
     logger.info(f"Запрос транскрипций для пользователя: {current_user['user_id']} с offset={offset} и limit={limit}", extra={'user_id': current_user['login']})
@@ -84,6 +87,7 @@ def get_analysis():
 @jwt_required()
 def get_transcription_by_id(analysis_id):
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     logger.info(f"Запрос на получение транскрипции по analysis_id: {analysis_id} для пользователя: {current_user}", extra={'user_id': current_user})
     from app.database.managers.analysis_manager import AnalysisManager
     
@@ -105,6 +109,7 @@ def get_transcription_by_id(analysis_id):
 @jwt_required()
 def get_analysis_by_analysis_id(analysis_id):
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     logger.info(f"Запрос на отображение транскрипции с analysis_id: {analysis_id} для пользователя: {current_user}", extra={'user_id': current_user['login']})
     
     # Передаем только transcription_id в шаблон
@@ -117,6 +122,7 @@ def get_user_prompts():
     from app.database.managers.prompt_manager import PromptManager
     prompt_manager = PromptManager()
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     logger.info(f"Запрос готовых промптов для пользователя: {current_user}", extra={'user_id': current_user['login']})
     prompts = prompt_manager.get_prompts_by_user(current_user['user_id'])  # Извлекаем промпты для текущего пользователя
     prompt_data = []
@@ -138,7 +144,7 @@ def get_user_transcriptions():
     from app.database.managers.transcription_manager import TranscriptionManager
     db = TranscriptionManager()
     current_user = get_jwt_identity()
-    
+    current_user=json.loads(current_user)
     logger.info(f"Запрос готовых промптов для пользователя: {current_user}", extra={'user_id': current_user['login']})
     transcriptions = db.get_transcription_by_user(current_user['user_id'])  # Извлекаем промпты для текущего пользователя
     names = [{

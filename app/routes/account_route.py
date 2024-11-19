@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import logging
+import json
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
 
@@ -23,6 +24,7 @@ def account():
 def protected():
     try:
         current_user = get_jwt_identity()
+        current_user=json.loads(current_user)
         logger.info(f"Пользователь авторизован: {current_user}")
         return jsonify({"message": "Access granted"}), 200
     except Exception as e:
@@ -34,6 +36,7 @@ def protected():
 @jwt_required()  # Требуется авторизация с JWT
 def get_username():
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     from app.database.managers.user_manager import UserManager
     # Создаем экземпляр менеджера базы данных
     db = UserManager()
@@ -50,6 +53,7 @@ def set_api_token():
     data = request.json
     comment = data.get('comment')
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     from app.database.managers.api_keys_manager import APIKeysManager
     db = APIKeysManager()
     logger.info(f"Запрос о создании API ключа от пользователя: {current_user}", extra={'user_id': current_user['login']})
@@ -66,6 +70,7 @@ def delete_api_token():
     data = request.json
     key_id = data.get('key_id')
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     from app.database.managers.api_keys_manager import APIKeysManager
     db = APIKeysManager()
     logger.info(f"Запрос об удалении API ключа от пользователя: {current_user}", extra={'user_id': current_user['login']})
@@ -80,6 +85,7 @@ def delete_api_token():
 @jwt_required()
 def get_api_tokens():
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     from app.database.managers.api_keys_manager import APIKeysManager
     db = APIKeysManager()
     logger.info(f"Запрос всех API ключей от пользователя: {current_user}", extra={'user_id': current_user['login']})

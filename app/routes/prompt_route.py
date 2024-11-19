@@ -1,6 +1,7 @@
 from flask import Blueprint, request, redirect, url_for, jsonify, flash, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import logging
+import json
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
  # Импортируем логгер
@@ -53,6 +54,7 @@ def get_prompts():
     from app.database.managers.prompt_manager import PromptManager
     prompt_manager = PromptManager()
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     logger.info(f"Загрузка страницы управления промптами для пользователя: {current_user}", extra={'user_id': current_user['login']})
     prompts = prompt_manager.get_prompts_by_user(current_user['user_id'])
 
@@ -78,6 +80,7 @@ def add_prompt():
     from app.database.managers.prompt_manager import PromptManager
     prompt_manager = PromptManager()
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     data = request.json
     prompt_name = data['prompt_name']
     text = data['text']
@@ -99,6 +102,7 @@ def delete_prompt(prompt_id):
     from app.database.managers.prompt_manager import PromptManager
     prompt_manager = PromptManager()
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     try:
         logger.info(f"Удаление промпта {prompt_id} для пользователя {current_user}", extra={'user_id': current_user['login']})
         prompt_manager.delete_prompt(prompt_id)
@@ -117,7 +121,7 @@ def edit_prompt(prompt_id):
     from app.database.managers.prompt_manager import PromptManager
     prompt_manager = PromptManager()
     current_user = get_jwt_identity()
-
+    current_user=json.loads(current_user)
     data = request.get_json()
     new_text = data.get('text')
     new_prompt_name = data.get('prompt_name')  # Получаем новое имя промпта
@@ -144,7 +148,7 @@ def set_automatic(prompt_id):
     from app.database.managers.prompt_manager import PromptManager
     prompt_manager = PromptManager()
     current_user = get_jwt_identity()
-
+    current_user=json.loads(current_user)
     data = request.get_json()
     use_automatic = data.get('use_automatic')
     logger.info(f"Запрос на изменение флага 'use_automatic' для промпта {prompt_id} пользователем {current_user}: {use_automatic}", extra={'user_id': current_user['login']})

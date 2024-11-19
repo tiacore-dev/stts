@@ -5,6 +5,7 @@ from flask import Response, jsonify, render_template
 import logging
 import tempfile
 from app.utils.upload_audio import process_and_upload_file
+import json
 
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
@@ -27,6 +28,7 @@ def manage_audio():
 @jwt_required()
 def upload_audio():
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     user_login = str(current_user['login'])
     logger.info(f"Пользователь {user_login} прислал файлы для загрузки.", extra={'user_id': user_login})
 
@@ -67,6 +69,7 @@ def get_files():
     
     db = AudioFileManager()
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     logger.info(f"Пользователь {current_user} запрашивает список файлов.", extra={'user_id': current_user['login']})
 
     page = int(request.args.get('page', 1))
@@ -112,7 +115,7 @@ def delete_file(audio_id):
     db = AudioFileManager()
     from app.services.s3 import get_s3_manager, get_bucket_name
     current_user = get_jwt_identity()
-    
+    current_user=json.loads(current_user)
 
     if not audio_id:
         return jsonify({'error': 'No file name provided'}), 400
@@ -144,6 +147,7 @@ def download_file_bytes():
     db = AudioFileManager()
     from app.services.s3 import get_s3_manager, get_bucket_name
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     audio_id = request.args.get('audio_id')
 
     logger.info(f"Получен запрос на скачивание файла: {audio_id} для пользователя: {current_user}", extra={'user_id': current_user['login']})
@@ -181,6 +185,7 @@ def download_file(audio_id):
     db = AudioFileManager()
     from app.services.s3 import get_s3_manager, get_bucket_name
     current_user = get_jwt_identity()
+    current_user=json.loads(current_user)
     #audio_id = request.args.get('audio_id')
 
     if not audio_id:
