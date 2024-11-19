@@ -1,6 +1,12 @@
 import multiprocessing
+import os
+from dotenv import load_dotenv
 
-bind = "0.0.0.0:5064"
+load_dotenv()
+
+port = os.getenv('FLASK_PORT')
+
+bind = f"0.0.0.0:{port}"
 workers = 4
 timeout = 600
 
