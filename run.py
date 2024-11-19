@@ -1,18 +1,15 @@
-import eventlet
-eventlet.monkey_patch()
-
-
 from app import create_app
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-#app, socketio = create_app()
+# Получаем порт из переменных окружения
+port = os.getenv('FLASK_PORT', 5064)
 
+# Создаем приложение
+app, socketio = create_app()
 
-port = os.getenv('FLASK_PORT')
-
+# Запуск через Gunicorn будет автоматически управлять процессом запуска
 if __name__ == "__main__":
-    app, socketio= create_app()
-    socketio.run(app, host="0.0.0.0", port=5064, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=True)
