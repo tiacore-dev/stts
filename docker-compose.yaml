@@ -44,10 +44,10 @@ services:
       - "${FLASK_PORT}:${FLASK_PORT}"  
     environment:
       - DATABASE_URL=${DATABASE_URL}
-      - HTTP_PROXY=http://localhost:80
-      - HTTPS_PROXY=https://localhost:443
-      - SSL_CERT_FILE=/app/certs/fullchain.pem
-      - SSL_KEY_FILE=/app/certs/privkey.pem
+      #- HTTP_PROXY=http://localhost:80
+      #- HTTPS_PROXY=https://localhost:443
+      #- SSL_CERT_FILE=/app/certs/fullchain.pem
+      #- SSL_KEY_FILE=/app/certs/privkey.pem
 
     depends_on:
       db:
