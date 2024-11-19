@@ -55,7 +55,7 @@ services:
     volumes:
       - .:/app
       #- ./certs:/app/certs:ro
-    command: gunicorn -w 4 -и eventlet -b 0.0.0.0:${FLASK_PORT} run:app
+    command: gunicorn -w 4 -b eventlet -b 0.0.0.0:${FLASK_PORT} run:app
     #command: gunicorn -w 4 -b 0.0.0.0:${FLASK_PORT} run:app
     networks:
       - stts-dev_app_network
