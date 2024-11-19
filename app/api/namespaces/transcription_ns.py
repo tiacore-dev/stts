@@ -36,7 +36,7 @@ transcription_ns.models[transcription_model.name] = transcription_model
 def test_http_request():
     try:
         logger.info("Отправка тестового запроса к внешнему сайту.")
-        response = urllib.request.urlopen('https://www.google.com')
+        response = urllib.request.urlopen('https://172.217.164.206')
         
         if response.status_code == 200:
             logger.info("Запрос успешен, статус: 200")
