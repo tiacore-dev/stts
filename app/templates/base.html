@@ -17,7 +17,8 @@
     <script>
         // Подключение к серверу WebSocket
         const socket = io.connect('https://stts-dev.tiacore.com', {
-                    transports: ['websocket']
+                    transports: ['websocket'],
+                    secure: true, 
                 });
 
         // Обработчик события подключения
