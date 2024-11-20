@@ -9,7 +9,7 @@ from app.utils.db_get import transcribed_audio
 from service_registry import get_service
 
 
-socket = get_service('sockets')
+#socket = get_service('sockets')
 
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')

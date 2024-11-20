@@ -75,8 +75,8 @@ def create_app():
     #, ping_timeout=600, ping_interval=25
     register_service('socketio', socketio)
 
-    sockets = Sockets(app)
-    register_service('sockets', sockets)
+    #sockets = Sockets(app)
+    #register_service('sockets', sockets)
 
     # Подключение к Redis
     redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)

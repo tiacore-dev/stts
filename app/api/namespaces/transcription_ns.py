@@ -17,7 +17,7 @@ from service_registry import get_service
 import json
 
 
-socket = get_service('sockets')
+#socket = get_service('sockets')
 
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
@@ -86,11 +86,11 @@ class TranscriptionResource(Resource):
 
         # Начинаем процесс транскрипции
         transcription_id = str(uuid.uuid4())
-        socket.send(json.dumps({
+        """socket.send(json.dumps({
             'status': 'started',
             'message': 'Начало транскрибации.',
             'task_id': transcription_id
-        }))
+        }))"""
         
         # Определяем количество каналов в аудиофайле
         channels = check_channels(audio_bytes, file_extension)
