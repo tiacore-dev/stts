@@ -12,21 +12,16 @@ logger = logging.getLogger('chatbot')
 
 audio_bp = Blueprint('audio', __name__)
 
-
-
 # Отображение страницы загрузки аудиофайлов
 @audio_bp.route('/manage_audio', methods=['GET'])
 def manage_audio():
     return render_template('manage_audio.html')
 
 
-
-
-
-
 @audio_bp.route('/audio/upload', methods=['POST'])
 @jwt_required()
 def upload_audio():
+    from app_celery.tasks.audio_tasks import process_and_upload_file_task
     current_user = get_jwt_identity()
     current_user=json.loads(current_user)
     user_login = str(current_user['login'])
@@ -48,11 +43,12 @@ def upload_audio():
     # Цикл по файлам и именам
     for file, file_name_input in zip(files, file_names):
         # Передаем сам файл в функцию обработки
-       
-        upload_result = process_and_upload_file(file, current_user['user_id'], file_name_input, user_login)
-        audio_id = upload_result.get('audio_id')
-
-        result.append({"file_name": file_name_input, "audio_id": audio_id})
+        #file, current_user['user_id'], file_name_input, user_login
+        #'file_path', current_user['user_id'], file_name_input, user_login
+        task = process_and_upload_file_task.delay()
+        #audio_id = upload_result.get('audio_id')
+#upload_result
+        result.append({"file_name": file_name_input, "task_id": task.id})
 
     return jsonify(result), 200
 

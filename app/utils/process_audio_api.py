@@ -4,9 +4,12 @@ from app.services.openai.transcription import transcribe_audio
 from app.services.openai.set_dialog import set_dialog
 import io
 import logging
-from flask import current_app
-
+import json
 from app.utils.db_get import transcribed_audio
+from service_registry import get_service
+
+
+socket = get_service('sockets')
 
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
@@ -23,11 +26,11 @@ def process_and_transcribe_audio_1(file_record, user_id, audio_id, file_extensio
     logger.info("Начало транскрибации аудио.", extra={'user_id': user_id})
     transcription = transcribe_audio(file_record, file_extension)
     transcription_id = db.add_transcription_with_id(transcription_id, user_id, transcription, audio_id, tokens=None)
-    """current_app.extensions['socketio'].emit('transcription_status', {
-        'status': 'completed', 
-        'transcription_id': transcription_id, 
+    """socket.send(json.dumps({
+        'status': 'completed',
+        'transcription_id': transcription_id,
         'user_id': user_id
-    })"""
+    }))"""
     return transcription
 
 
@@ -41,13 +44,14 @@ def process_and_transcribe_audio_2(file_record, user_id, audio_id, file_extensio
     # Выполняем транскрибацию для всего аудио
     logger.info("Начало транскрибации всего аудио.", extra={'user_id': user_id})
     transcriptions.append(transcribe_audio(file_record, file_extension))
-    # Прогресс (например, после завершения обработки канала 1)
-    """current_app.extensions['socketio'].emit('transcription_status', {
-        'status': 'in_progress', 
-        'stage': 'main audio processed',
+    """socket.send(json.dumps({
+        'status': 'in_progress',
+        'stage': 'main_audio_processed',
         'transcription_id': transcription_id,
         'user_id': user_id
-    })"""
+    }))"""
+    # Стартовая отправка сообщения через WebSocket
+    
     # Разделяем аудио на два канала
     channels = audio_segment.split_to_mono()
     channel1, channel2 = channels[0], channels[1]
@@ -64,20 +68,21 @@ def process_and_transcribe_audio_2(file_record, user_id, audio_id, file_extensio
     logger.info("Начало транскрибации левого канала.", extra={'user_id': user_id})
     transcriptions.append(transcribe_audio(channel1_bytes_value, file_extension))
     # Прогресс (например, после завершения обработки канала 1)
-    """current_app.extensions['socketio'].emit('transcription_status', {
-        'status': 'in_progress', 
+    """socket.send(json.dumps({
+        'status': 'in_progress',
         'stage': 'channel_1_processed',
         'transcription_id': transcription_id,
         'user_id': user_id
-    })"""
+    }))"""
     transcriptions.append(transcribe_audio(channel2_bytes_value, file_extension))
     # Прогресс (например, после завершения обработки канала 1)
-    """current_app.extensions['socketio'].emit('transcription_status', {
-        'status': 'in_progress', 
+    # Отправка обновления прогресса для канала 2
+    """socket.send(json.dumps({
+        'status': 'in_progress',
         'stage': 'channel_2_processed',
         'transcription_id': transcription_id,
         'user_id': user_id
-    })"""
+    }))"""
 
     
     for i, transcription in enumerate(transcriptions):
@@ -91,17 +96,14 @@ def process_and_transcribe_audio_2(file_record, user_id, audio_id, file_extensio
     logger.info("Составление диалога.", extra={'user_id': user_id})
     dialog, tokens_full = set_dialog(transcriptions[0], transcriptions[1], transcriptions[2], prompt)
     transcription_id = db.add_transcription_with_id(transcription_id, user_id, dialog, audio_id, tokens_full)
-    #is_set = transcribed_audio(audio_id)
-    """if is_set:
-        logger.info(f"Установлена транскрибированность для аудио с ID: {audio_id}", extra={'user_id': user_id})
-    else:
-        logger.error(f"Ошибка установления транскрибированности для аудио с ID: {audio_id}", extra={'user_id': user_id})"""
     logger.info(f"Получена транскрипция с ID: {transcription_id}", extra={'user_id': user_id})
-    return dialog  
-
-
-"""current_app.extensions['socketio'].emit('transcription_status', {
-        'status': 'completed', 
-        'transcription_id': transcription_id, 
+    # Завершение задачи
+    return dialog 
+    """socket.send(json.dumps({
+        'status': 'completed',
+        'transcription_id': transcription_id,
         'user_id': user_id
-    })"""
+    }))"""
+     
+
+

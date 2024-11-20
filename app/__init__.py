@@ -12,7 +12,9 @@ from flask_cors import CORS
 from flask_restx import Api
 from datetime import timedelta
 from werkzeug.middleware.proxy_fix import ProxyFix
-#from app_celery import make_celery
+from flask_sockets import Sockets
+import redis
+from app_celery import create_celery_app
 
 def create_app():
     app = Flask(__name__)
@@ -73,6 +75,13 @@ def create_app():
     #, ping_timeout=600, ping_interval=25
     register_service('socketio', socketio)
 
+    sockets = Sockets(app)
+    register_service('sockets', sockets)
+
+    # Подключение к Redis
+    redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
+    register_service('redis', redis_client)
+
     # Проверьте, что socketio зарегистрирован
     if socketio is None:
         raise RuntimeError("SocketIO не был правильно инициализирован!")
@@ -85,6 +94,7 @@ def create_app():
     except Exception as e:
         logger.error(f"Ошибка при регистрации маршрутов: {e}", extra={'user_id': 'init'})
         raise
+
 
     # Инициализация API
     api = Api(app, doc='/swagger', security='apiKey', authorizations={
@@ -99,7 +109,6 @@ def create_app():
     register_namespaces(api)
     # Настройка CORS
     CORS(app, resources={r"/*": {"origins": "*"}})
-    #celery = make_celery(app)
-    #app.celery = celery
 
-    return app#, socketio
+
+    return app, socketio

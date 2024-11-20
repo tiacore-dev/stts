@@ -11,9 +11,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 40s  # Увеличьте интервал
+      interval: 40s
       timeout: 20s
-      retries: 15  # Увеличьте количество попыток
+      retries: 15
     networks:
       - stts_app_network
 
@@ -35,7 +35,6 @@ services:
     networks:
       - stts_app_network
 
-
   web:
     tty: true
     stdin_open: true
@@ -44,11 +43,11 @@ services:
       - 8.8.8.8
       - 8.8.4.4
     ports:
-      - "${FLASK_PORT}:${FLASK_PORT}"  
+      - "${FLASK_PORT}:${FLASK_PORT}"
     environment:
       - DATABASE_URL=${DATABASE_URL}
-      - HTTP_PROXY= 
-      - HTTPS_PROXY= 
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
     depends_on:
       db:
         condition: service_healthy
@@ -56,16 +55,13 @@ services:
         condition: service_healthy
     volumes:
       - .:/app
-      #- ./certs:/app/certs:ro
     command: gunicorn -c gunicorn.conf.py --worker-class eventlet -w 1 run:app
-
     networks:
       - stts_app_network
 
-
   init_password:
     build: .
-    command: python password.py  # Запуск скрипта для добавления админа
+    command: python password.py
     environment:
       - DATABASE_URL=${DATABASE_URL}
     networks:
@@ -88,10 +84,25 @@ services:
     networks:
       - stts_app_network
 
+  celery_worker:
+    build: .
+    command: celery -A celery_worker:celery worker --loglevel=info
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    networks:
+      - stts_app_network
+
 volumes:
   postgres_data:
 
 networks:
   stts_app_network:
     external: true
-

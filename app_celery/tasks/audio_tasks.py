@@ -13,8 +13,12 @@ celery = create_celery_app()
 logger = logging.getLogger('chatbot')
 
 @celery.task
-def process_and_upload_file_task(file_path, user_id, file_name_input, login):
-    from app.database.managers.audio_manager import AudioFileManager
+def process_and_upload_file_task():
+    """print(file_path)
+    print(user_id)
+    print(file_name_input)"""
+
+    """from app.database.managers.audio_manager import AudioFileManager
     db = AudioFileManager()
     s3_manager = get_s3_manager()
     bucket_name = get_bucket_name()
@@ -55,4 +59,4 @@ def process_and_upload_file_task(file_path, user_id, file_name_input, login):
             'status': 'error',
             'file_name': file_name_input,
             'error': str(e)
-        }
+        }"""

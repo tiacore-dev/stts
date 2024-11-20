@@ -17,14 +17,9 @@ def transcription():
     form = AudioForm()
     return render_template('transcription/transcription.html', form=form)
 
-
-
 @transcription_bp.route('/transcription_result', methods=['GET'])
 def transcription_result():
     return render_template('transcription/transcription_result.html')
-
-
-
 
 
 @transcription_bp.route('/transcription/create', methods=['POST'])
@@ -45,11 +40,9 @@ def create_transcription():
     results = []
     for audio_id in audio_ids:
         logger.info(f"Обработка аудио с ID {audio_id} для пользователя {current_user['login']}", extra={'user_id': current_user['login']})
-
+        #str(audio_id), str(current_user['user_id']), str(current_user['login'])
         # Запускаем задачу в Celery
-        task = process_and_transcribe_audio_task.delay(
-            str(audio_id), str(current_user['user_id']), str(current_user['login'])
-        )
+        task = process_and_transcribe_audio_task.delay()
 
         # Добавляем task_id в список результатов
         results.append({"audio_id": audio_id, "task_id": task.id})

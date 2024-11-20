@@ -13,6 +13,11 @@ from urllib.parse import urlparse, unquote
 import uuid
 from flask import jsonify
 import requests
+from service_registry import get_service
+import json
+
+
+socket = get_service('sockets')
 
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
@@ -24,19 +29,6 @@ transcription_ns.models[transcription_create_model_payload.name] = transcription
 transcription_ns.models[transcription_create_model_response.name] = transcription_create_model_response
 transcription_ns.models[transcription_model.name] = transcription_model
 
-# Пример простого запроса
-"""def test_http_request():
-    try:
-        logger.info("Отправка тестового запроса к внешнему сайту.")
-        response = requests.get("https://www.google.com")
-        
-        if response.status_code == 200:
-            logger.info("Запрос успешен, статус: 200")
-        else:
-            logger.error(f"Ошибка при запросе, статус: {response.status_code}")
-    
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Ошибка при отправке запроса: {e}")"""
 
 @transcription_ns.route('/create')
 class TranscriptionResource(Resource):
@@ -44,8 +36,6 @@ class TranscriptionResource(Resource):
     @transcription_ns.expect(transcription_create_model_payload)
     @transcription_ns.marshal_with(transcription_create_model_response)
     def post(self):
-        # Вызовем тестовую функцию
-        #test_http_request()
         logger.info(f"Вход в метод TranscriptionResource.post ")
         from app.database.managers.audio_manager import AudioFileManager
         db = AudioFileManager()
@@ -53,7 +43,6 @@ class TranscriptionResource(Resource):
         audio_url = request.json.get('audio_url')
         new_filename = request.json.get('new_filename', None)
         prompt = request.json.get('prompt', None)
-
         user_id = request.user_id
         if not audio_url:
             return jsonify({"error": "Audio URL is required"}), 400
@@ -61,7 +50,6 @@ class TranscriptionResource(Resource):
         try:
             # Загружаем файл с помощью requests и получаем его содержимое в память
             response = requests.get(audio_url)
-            #, timeout=300
 
             # Проверяем статус ответа
             if response.status_code == 200:
@@ -98,12 +86,11 @@ class TranscriptionResource(Resource):
 
         # Начинаем процесс транскрипции
         transcription_id = str(uuid.uuid4())
-        """current_app.extensions['socketio'].emit('transcription_status', {
-            'status': 'started', 
-            'transcription_id': transcription_id, 
-            'user_id': user_id,
-            'filename': final_filename
-        })"""
+        socket.send(json.dumps({
+            'status': 'started',
+            'message': 'Начало транскрибации.',
+            'task_id': transcription_id
+        }))
         
         # Определяем количество каналов в аудиофайле
         channels = check_channels(audio_bytes, file_extension)
