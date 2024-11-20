@@ -7,7 +7,7 @@ from app.database import init_db, set_db_globals
 from app.services.s3 import init_s3_manager
 from app.services.openai import init_openai
 from app.utils.logger import setup_logger
-#from flask_socketio import SocketIO
+from flask_socketio import SocketIO
 from flask_cors import CORS
 from flask_restx import Api
 from datetime import timedelta
@@ -69,13 +69,13 @@ def create_app():
 
     
     # Инициализация SocketIO
-    #socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
+    socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
     #, ping_timeout=600, ping_interval=25
-    #register_service('socketio', socketio)
+    register_service('socketio', socketio)
 
     # Проверьте, что socketio зарегистрирован
-    #if socketio is None:
-    #    raise RuntimeError("SocketIO не был правильно инициализирован!")
+    if socketio is None:
+        raise RuntimeError("SocketIO не был правильно инициализирован!")
 
     from app.routes import register_routes
     # Регистрация маршрутов

@@ -1,8 +1,7 @@
-"""from flask import Blueprint
 from flask_socketio import emit, join_room, leave_room
 from service_registry import get_service
 
-socket_bp = Blueprint('socket', __name__)
+
 socketio = get_service('socketio')
 
 # Событие для подключения клиента
@@ -32,4 +31,3 @@ def on_join(room):
 def on_leave(room):
     leave_room(room)
     emit('response', {'message': f'Left room {room}'}, room=room)
-"""
