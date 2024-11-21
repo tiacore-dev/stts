@@ -18,6 +18,7 @@ logger.info("Task module loaded and registered")
 #audio_id, user_id, login
 @celery.task
 def process_and_transcribe_audio_task():
+    logger.info('success')
     print('success')
     """    print(audio_id)
     print(user_id)
