@@ -14,6 +14,7 @@ logger = logging.getLogger('chatbot')
 
 @celery.task
 def process_and_upload_file_task():
+    print('success')
     """print(file_path)
     print(user_id)
     print(file_name_input)"""
