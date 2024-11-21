@@ -12,9 +12,9 @@ from flask_cors import CORS
 from flask_restx import Api
 from datetime import timedelta
 from werkzeug.middleware.proxy_fix import ProxyFix
-from flask_sockets import Sockets
+#from flask_sockets import Sockets
 import redis
-from app_celery import create_celery_app
+
 
 def create_app():
     app = Flask(__name__)
