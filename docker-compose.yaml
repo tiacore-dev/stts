@@ -19,7 +19,7 @@ services:
 
   alembic:
     build: .
-    command: bash -c "alembic upgrade head"
+    command: bash -c "/usr/local/bin/wait-for-it db:${DATABASE_PORT} -- alembic upgrade head"
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
@@ -27,11 +27,6 @@ services:
         condition: service_healthy
     volumes:
       - .:/app
-    healthcheck:
-      test: ["CMD", "bash", "-c", "alembic current | grep -q 'head'"]
-      interval: 10s
-      retries: 5
-      timeout: 5s
     networks:
       - stts_app_network
 
@@ -55,38 +50,13 @@ services:
         condition: service_healthy
     volumes:
       - .:/app
-    command: gunicorn -c gunicorn.conf.py --worker-class eventlet -w 1 run:app
+    command: bash -c "/usr/local/bin/wait-for-it db:${DATABASE_PORT} -- /usr/local/bin/wait-for-it redis:${REDIS_PORT} -- gunicorn -c gunicorn.conf.py --worker-class eventlet -w 1 run:app"
     networks:
       - stts_app_network
 
-  init_password:
+  celery:
     build: .
-    command: python password.py
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-    networks:
-      - stts_app_network
-    depends_on:
-      db:
-        condition: service_healthy
-    volumes:
-      - .:/app
-
-  redis:
-    image: redis:alpine
-    ports:
-      - "${REDIS_PORT}:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - stts_app_network
-
-  celery_worker:
-    build: .
-    command: celery -A celery_worker:celery worker --loglevel=info
+    command: bash -c "/usr/local/bin/wait-for-it db:${DATABASE_PORT} -- /usr/local/bin/wait-for-it redis:${REDIS_PORT} -- celery -A celery_worker:celery worker --loglevel=info"
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=redis://redis:6379/0
@@ -99,6 +69,7 @@ services:
       - .:/app
     networks:
       - stts_app_network
+
 
 volumes:
   postgres_data:
