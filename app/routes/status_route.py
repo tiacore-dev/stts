@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.celery_task import CeleryTask 
 import logging
-from app_celery.tasks.transcription_tasks import process_and_transcribe_audio_task
+from app.app_celery.tasks.transcription_tasks import process_and_transcribe_audio_task
 import json
 
 logger = logging.getLogger('chatbot')
