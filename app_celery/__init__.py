@@ -2,7 +2,7 @@
 
 from celery import Celery
 from config.config_celery import ConfigCelery
-from service_registry import register_service
+
 
 def create_celery_app(flask_app=None):
     # Создаем экземпляр Celery
@@ -25,7 +25,6 @@ def create_celery_app(flask_app=None):
                     return TaskBase.__call__(self, *args, **kwargs)
 
         celery.Task = ContextTask
-    register_service('celery', celery)
     # Автоматически обнаруживает задачи в модуле 'app_celery.tasks'
     celery.autodiscover_tasks(['app_celery.tasks'])
     

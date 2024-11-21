@@ -2,11 +2,11 @@
 from app.services.s3 import get_s3_manager, get_bucket_name
 import logging
 import os
-from service_registry import get_service
-#from app_celery import create_celery_app
 
-#celery = create_celery_app() 
-celery = get_service('celery')
+from app_celery import create_celery_app
+
+celery = create_celery_app() 
+
 #file_path, user_id, file_name_input, login
 
 # Получаем логгер по его имени
