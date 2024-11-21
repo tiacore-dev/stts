@@ -1,22 +1,5 @@
 services:
-  db:
-    image: postgres:13
-    ports:
-      - "${DATABASE_PORT}:5432"
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 40s
-      timeout: 20s
-      retries: 30
-    networks:
-      - stts_app_network
-    
+
   redis:
     image: redis:alpine
     ports:
@@ -31,12 +14,10 @@ services:
 
   alembic:
     build: .
-    command: bash -c "/usr/local/bin/wait-for-it db:${DATABASE_PORT} -- alembic upgrade head"
+    command: bash -c "alembic upgrade head"
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
-      db:
-        condition: service_healthy
     volumes:
       - .:/app
     networks:
@@ -56,16 +37,12 @@ services:
       - HTTP_PROXY=
       - HTTPS_PROXY=
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
       - .:/app
     command: >
-      bash -c "./wait-for-it.sh db:5432 --timeout=300 &&
-                ./wait-for-it.sh redis:6379 --timeout=300 &&
-                gunicorn -c gunicorn.conf.py --worker-class eventlet -w 1 run:app"
+      bash -c gunicorn -c gunicorn.conf.py --worker-class eventlet -w 1 run:app"
     networks:
       - stts_app_network
 
@@ -73,14 +50,12 @@ services:
 
   celery:
     build: .
-    command: bash -c "/usr/local/bin/wait-for-it db:${DATABASE_PORT} -- /usr/local/bin/wait-for-it redis:${REDIS_PORT} -- celery -A celery_worker:celery worker --loglevel=info"
+    command: bash -c "celery -A celery_worker:celery worker --loglevel=info"
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=redis://redis:6379/0
     depends_on:
       redis:
-        condition: service_healthy
-      db:
         condition: service_healthy
     volumes:
       - .:/app
