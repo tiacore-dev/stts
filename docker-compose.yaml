@@ -36,7 +36,7 @@ services:
     volumes:
       - .:/app
     healthcheck:
-      test: ["CMD-SHELL", "celery -A celery_worker inspect ping || exit 1"]
+      test: ["CMD-SHELL", "celery -A celery_worker inspect active || celery -A celery_worker status"]
       interval: 30s
       timeout: 10s
       retries: 3
