@@ -14,8 +14,7 @@ services:
 
   alembic:
     build: .
-    command: >
-      alembic upgrade head
+    command: echo $DATABASE_URL && alembic upgrade head
     environment:
       - DATABASE_URL=${DATABASE_URL}
     volumes:
