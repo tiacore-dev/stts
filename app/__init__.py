@@ -71,7 +71,7 @@ def create_app():
         raise
 
     celery = create_celery_app(app)
-    register_service(celery)
+    register_service('celery', celery)
     
     # Инициализация SocketIO
     socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
