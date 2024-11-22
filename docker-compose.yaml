@@ -54,7 +54,6 @@ services:
       - celery
     volumes:
       - .:/app
-      - ./shared_temp:/shared_temp
     networks:
       - stts_app_network
 

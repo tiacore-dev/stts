@@ -18,13 +18,8 @@ logger.info("Task module loaded and registered")
 #audio_id, user_id, login
 #@celery.task(name='process_and_transcribe_audio_task')
 @shared_task
-def process_and_transcribe_audio_task():
-    logger.info('success')
-    print('success')
-    """    print(audio_id)
-    print(user_id)
-    print(login)"""
-    """logger.info(f"Received parameters - audio_id: {audio_id}, user_id: {user_id}, login: {login}")
+def process_and_transcribe_audio_task(audio_id, user_id, login):
+    logger.info(f"Received parameters - audio_id: {audio_id}, user_id: {user_id}, login: {login}")
 
     from app.database.managers.transcription_manager import TranscriptionManager
     db = TranscriptionManager()
@@ -74,4 +69,4 @@ def process_and_transcribe_audio_task():
     else:
         logger.error(f"Ошибка установления транскрибированности для аудио с ID: {audio_id}", extra={'user_id': login})
 
-    return transcription_id"""
+    return transcription_id

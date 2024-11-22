@@ -42,7 +42,7 @@ def create_transcription():
         logger.info(f"Обработка аудио с ID {audio_id} для пользователя {current_user['login']}", extra={'user_id': current_user['login']})
         #str(audio_id), str(current_user['user_id']), str(current_user['login'])
         # Запускаем задачу в Celery
-        task = process_and_transcribe_audio_task.delay()
+        task = process_and_transcribe_audio_task.delay(str(audio_id), str(current_user['user_id']), str(current_user['login']))
 
         # Добавляем task_id в список результатов
         results.append({"audio_id": audio_id, "task_id": task.id})
