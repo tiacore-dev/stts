@@ -26,9 +26,16 @@ def create_celery_app(flask_app=None):
 
         celery.Task = ContextTask
     # Автоматически обнаруживает задачи в модуле 'app_celery.tasks'
-    celery.autodiscover_tasks(['app.app_celery.tasks'])
+    #celery.autodiscover_tasks(['app.app_celery.tasks'])
 
+    # Явный импорт задач
+    from app.app_celery.tasks.transcription_tasks import process_and_transcribe_audio_task, process_and_upload_file_task
+
+    # Явная регистрация задач
     celery.conf.update(
-            worker_hijack_root_logger=False
-        )
+        task_routes={
+            'app.app_celery.tasks.transcription_tasks.process_and_transcribe_audio_task': {'queue': 'celery'},
+            'app.app_celery.tasks.transcription_tasks.process_and_upload_file_task': {'queue': 'celery'},
+        }
+    )
     return celery
