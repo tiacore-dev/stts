@@ -45,12 +45,18 @@ services:
       - stts_app_network
 
   flower:
+    build: .
     command: celery -A celery_worker flower --broker=redis://redis:6379
     ports:
       - "5555:5555"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://redis:6379/0
     depends_on:
       - redis
       - celery
+    volumes:
+      - .:/app
     networks:
       - stts_app_network
 
