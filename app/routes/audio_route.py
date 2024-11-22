@@ -23,7 +23,7 @@ def manage_audio():
 @jwt_required()
 def upload_audio():
     current_user = get_jwt_identity()
-    current_user=json.loads(current_user)
+    current_user = json.loads(current_user)
     user_login = str(current_user['login'])
     logger.info(f"Пользователь {user_login} прислал файлы для загрузки.", extra={'user_id': user_login})
 
@@ -42,12 +42,16 @@ def upload_audio():
 
     # Цикл по файлам и именам
     for file, file_name_input in zip(files, file_names):
-        # Передаем сам файл в функцию обработки
-        #file, current_user['user_id'], file_name_input, user_login
-        #'file_path', current_user['user_id'], file_name_input, user_login
-        task = process_and_upload_file_task.apply_async()
-        #audio_id = upload_result.get('audio_id')
-#upload_result
+        # Сохраняем файл во временный файл
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        temp_file_path = temp_file.name
+
+        # Сохраняем файл на диск
+        file.save(temp_file_path)
+
+        # Генерируем задачу Celery с передачей пути к временному файлу
+        task = process_and_upload_file_task.apply_async((temp_file_path, current_user['user_id'], file_name_input, user_login))
+
         result.append({"file_name": file_name_input, "task_id": task.id})
 
     return jsonify(result), 200
