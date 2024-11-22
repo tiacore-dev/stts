@@ -104,7 +104,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    """    # Удаляем таблицу logs
+    # Удаляем таблицу logs
     op.drop_table('logs')
 
     # Удаляем таблицу transcriptions
@@ -123,4 +123,4 @@ def downgrade() -> None:
     op.drop_table('api_keys')
 
     # Удаляем таблицу analysis
-    op.drop_table('analysis')"""
+    op.drop_table('analysis')
