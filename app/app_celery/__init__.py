@@ -29,7 +29,7 @@ def create_celery_app(flask_app=None):
     #celery.autodiscover_tasks(['app.app_celery.tasks'])
     register_service('celery', celery)
     # Явный импорт задач
-    from app.app_celery.tasks.transcription_tasks import process_and_transcribe_audio_task, process_and_upload_file_task
+    from app.app_celery.tasks import process_and_transcribe_audio_task, process_and_upload_file_task
 
     # Явная регистрация задач
     celery.conf.update(
