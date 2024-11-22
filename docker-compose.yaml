@@ -72,6 +72,15 @@ services:
     networks:
       - stts_app_network
 
+  init_password:
+    build: .
+    command: python password.py  # Запуск скрипта для добавления админа
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    networks:
+      - stts_app_network
+    volumes:
+      - .:/app
 
 
 volumes:
