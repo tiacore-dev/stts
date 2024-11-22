@@ -2,15 +2,17 @@
 from app.services.s3 import get_s3_manager, get_bucket_name
 import logging
 import os
-from app_celery import create_celery_app
+from celery import shared_task
+#from app_celery import get_celery_app
 
-celery = create_celery_app() 
+#celery = get_celery_app()
 
 
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
 
-@celery.task(name='process_and_upload_file_task')
+#@celery.task(name='process_and_upload_file_task')
+@shared_task
 def process_and_upload_file_task(file_path, user_id, file_name_input, login):
     logger.info('starting task')
     from app.database.managers.audio_manager import AudioFileManager
