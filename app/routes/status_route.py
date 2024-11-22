@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, render_template
+"""from flask import Blueprint, jsonify, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.celery_task import CeleryTask 
 import logging
@@ -74,3 +74,4 @@ def get_transcription_status(task_id):
         response = {'status': 'failed'}
     
     return jsonify(response)
+"""

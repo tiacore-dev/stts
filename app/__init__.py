@@ -12,7 +12,7 @@ from flask_cors import CORS
 from flask_restx import Api
 from datetime import timedelta
 from werkzeug.middleware.proxy_fix import ProxyFix
-from app.app_celery import create_celery_app
+
 #from flask_sockets import Sockets
 import redis
 
@@ -70,8 +70,7 @@ def create_app():
         logger.error(f"Ошибка при инициализации S3: {e}", extra={'user_id': 'init'})
         raise
 
-    celery = create_celery_app(app)
-    register_service('celery', celery)
+
     
     # Инициализация SocketIO
     socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")

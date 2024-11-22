@@ -1,17 +1,17 @@
 # app_celery/__init__.py
 
 from celery import Celery
-from config.config_celery import ConfigCelery
-from service_registry import register_service
+from config import Config
+
 
 def create_celery_app(flask_app=None):
     # Создаем экземпляр Celery
     celery = Celery(
         __name__,
-        broker=ConfigCelery.CELERY_BROKER_URL,
-        backend=ConfigCelery.CELERY_RESULT_BACKEND
+        broker=Config.CELERY_BROKER_URL,
+        backend=Config.CELERY_RESULT_BACKEND
     )
-    celery.conf.update(result_backend=ConfigCelery.CELERY_RESULT_BACKEND)
+    celery.conf.update(result_backend=Config.CELERY_RESULT_BACKEND)
 
     # Если передан flask_app, связываем конфигурации
     if flask_app:
@@ -25,11 +25,7 @@ def create_celery_app(flask_app=None):
                     return TaskBase.__call__(self, *args, **kwargs)
 
         celery.Task = ContextTask
-    # Автоматически обнаруживает задачи в модуле 'app_celery.tasks'
-    #celery.autodiscover_tasks(['app.app_celery.tasks'])
-    register_service('celery', celery)
-    # Явный импорт задач
-    # Или можно добавить задачи в отдельный список
-    celery.autodiscover_tasks(['app.app_celery.tasks'])
 
+    # Автоматически обнаруживает задачи в модуле 'app_celery.tasks'
+    celery.autodiscover_tasks(['app_celery.tasks'])
     return celery

@@ -6,14 +6,14 @@ import io
 from pydub import AudioSegment
 import logging
 from app.utils.db_get import transcribed_audio
-from service_registry import get_service
+from app_celery import create_celery_app
 
-celery=get_service('celery')
-
+celery = create_celery_app() 
 
 logger = logging.getLogger('chatbot')
 
 logger.info("Task module loaded and registered")
+
 #audio_id, user_id, login
 @celery.task(name='process_and_transcribe_audio_task')
 def process_and_transcribe_audio_task():

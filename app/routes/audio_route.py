@@ -22,7 +22,7 @@ def manage_audio():
 @audio_bp.route('/audio/upload', methods=['POST'])
 @jwt_required()
 def upload_audio():
-    from app.app_celery.tasks import process_and_upload_file_task
+    from app_celery.tasks import process_and_upload_file_task
     current_user = get_jwt_identity()
     current_user = json.loads(current_user)
     user_login = str(current_user['login'])
