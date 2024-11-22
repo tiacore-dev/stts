@@ -4,7 +4,7 @@ from app.routes.forms import AudioForm
 import logging
 from app.utils.db_get import get_audio_name
 import json
-from app.app_celery.tasks.transcription_tasks import process_and_transcribe_audio_task
+
 
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
@@ -25,6 +25,7 @@ def transcription_result():
 @transcription_bp.route('/transcription/create', methods=['POST'])
 @jwt_required()
 def create_transcription():
+    from app.app_celery.tasks.transcription_tasks import process_and_transcribe_audio_task
     current_user = get_jwt_identity()
     current_user=json.loads(current_user)
     audio_ids = request.json.get('audio_ids')  # Получаем список audio_id

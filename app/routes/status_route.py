@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.celery_task import CeleryTask 
 import logging
-from app.app_celery.tasks.transcription_tasks import process_and_transcribe_audio_task
+
 import json
 
 logger = logging.getLogger('chatbot')
@@ -60,6 +60,7 @@ def get_user_tasks(user_id):
 @status_bp.route('/transcription/status/<task_id>', methods=['GET'])
 @jwt_required()
 def get_transcription_status(task_id):
+    from app.app_celery.tasks.transcription_tasks import process_and_transcribe_audio_task
     task = process_and_transcribe_audio_task.AsyncResult(task_id)
     
     if task.state == 'PENDING':

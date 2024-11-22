@@ -2,7 +2,7 @@
 
 from celery import Celery
 from config.config_celery import ConfigCelery
-
+celery = None
 
 def create_celery_app(flask_app=None):
     # Создаем экземпляр Celery

@@ -6,7 +6,7 @@ import logging
 import tempfile
 from app.utils.upload_audio import process_and_upload_file
 import json
-from app.app_celery.tasks.audio_tasks import process_and_upload_file_task
+
 
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
@@ -22,6 +22,7 @@ def manage_audio():
 @audio_bp.route('/audio/upload', methods=['POST'])
 @jwt_required()
 def upload_audio():
+    from app.app_celery.tasks.audio_tasks import process_and_upload_file_task
     current_user = get_jwt_identity()
     current_user = json.loads(current_user)
     user_login = str(current_user['login'])

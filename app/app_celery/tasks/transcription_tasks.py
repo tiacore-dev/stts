@@ -6,10 +6,10 @@ import io
 from pydub import AudioSegment
 import logging
 from app.utils.db_get import transcribed_audio
+from app.app_celery import celery
+#from app.app_celery import create_celery_app
 
-from app.app_celery import create_celery_app
-
-celery = create_celery_app() 
+#celery = create_celery_app() 
 
 
 logger = logging.getLogger('chatbot')
