@@ -51,7 +51,7 @@ def upload_audio():
         file.save(temp_file_path)
         logger.info('Запускаем задачу')
         # Генерируем задачу Celery с передачей пути к временному файлу
-        task = process_and_upload_file_task.apply_async(args=[temp_file_path, current_user['user_id'], file_name_input, user_login])
+        task = process_and_upload_file_task.delay(temp_file_path, current_user['user_id'], file_name_input, user_login)
         logger.info(f'Задача с ID {task.id} запущена.')
 
         result.append({"file_name": file_name_input, "task_id": task.id})
