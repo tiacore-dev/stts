@@ -1,5 +1,5 @@
 # Используем официальный образ Python в качестве базового
-FROM python:3.9-slim
+FROM python:3.12-slim
 
 # Устанавливаем необходимые зависимости, включая ffmpeg, curl, gcc и библиотеки для SSL
 RUN apt-get update && apt-get install -y \
