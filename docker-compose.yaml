@@ -43,7 +43,7 @@ services:
       - .:/app
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:${FLASK_PORT} || exit 1"]
-      interval: 10m
+      interval: 1m
       timeout: 5s
       retries: 5
     command: gunicorn -c gunicorn.conf.py --worker-class eventlet -w 1 run:app
