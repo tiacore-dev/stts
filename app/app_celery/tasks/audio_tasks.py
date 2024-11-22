@@ -3,7 +3,7 @@ from app.services.s3 import get_s3_manager, get_bucket_name
 import logging
 import os
 
-from app_celery import create_celery_app
+from app.app_celery import create_celery_app
 
 celery = create_celery_app() 
 
