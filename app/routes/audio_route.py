@@ -22,7 +22,7 @@ def manage_audio():
 @audio_bp.route('/audio/upload', methods=['POST'])
 @jwt_required()
 def upload_audio():
-    from app.app_celery.tasks.audio_tasks import process_and_upload_file_task
+    from app.app_celery.tasks import process_and_upload_file_task
     current_user = get_jwt_identity()
     current_user = json.loads(current_user)
     user_login = str(current_user['login'])
@@ -49,10 +49,10 @@ def upload_audio():
 
         # Сохраняем файл на диск
         file.save(temp_file_path)
-
+        logger.info('Запускаем задачу')
         # Генерируем задачу Celery с передачей пути к временному файлу
         task = process_and_upload_file_task.apply_async(args=[temp_file_path, current_user['user_id'], file_name_input, user_login])
-
+        logger.info(f'Задача с ID {task.id} запущена.')
 
         result.append({"file_name": file_name_input, "task_id": task.id})
 
