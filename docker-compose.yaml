@@ -53,7 +53,7 @@ services:
       - redis
       - celery
     networks:
-      - your_network
+      - stts_app_network
 
   web:
     tty: true
