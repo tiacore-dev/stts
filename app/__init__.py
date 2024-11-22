@@ -12,8 +12,7 @@ from flask_cors import CORS
 from flask_restx import Api
 from datetime import timedelta
 from werkzeug.middleware.proxy_fix import ProxyFix
-
-#from flask_sockets import Sockets
+from flask_sockets import Sockets
 import redis
 
 
@@ -77,8 +76,8 @@ def create_app():
     #, ping_timeout=600, ping_interval=25
     register_service('socketio', socketio)
 
-    #sockets = Sockets(app)
-    #register_service('sockets', sockets)
+    sockets = Sockets(app)
+    register_service('sockets', sockets)
 
     # Подключение к Redis
     redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)

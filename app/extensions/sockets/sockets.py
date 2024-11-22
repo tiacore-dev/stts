@@ -1,65 +1,58 @@
-"""from service_registry import get_service
+# app/sockets.py
+from service_registry import get_service
 import json
-import time
-import threading
 
 
+# Инициализация WebSocket
 sockets = get_service('sockets')
-redis_client=get_service('redis')
 
-# Прогресс хранится в Redis
-PROGRESS_KEY = 'task_progress'"""
+# Словарь для отслеживания подключений по логинам
+clients = {}
 
-"""# Функция для обработки прогресса задачи
-def process_task(ws, task_id):
-    # Отправляем начальное сообщение о начале задачи
-    redis_client.set(PROGRESS_KEY, json.dumps({
-        'status': 'started',
-        'message': 'Задача началась.'
-    }))
-    ws.send(json.dumps({
-        'status': 'started',
-        'message': 'Задача началась.'
-    }))
+def send_progress(user_id, message):
+    """Отправка сообщения всем подключенным клиентам для указанного пользователя"""
+    for login, ws_list in clients.items():
+        # Найдем все соединения для этого логина
+        for ws in ws_list:
+            try:
+                # Отправка сообщения, если оно связано с данным user_id
+                if ws.user_id == user_id:
+                    ws.send(json.dumps(message))
+            except:
+                continue
 
-    # Этапы обработки задачи
-    for stage in ['processing', 'channel_1', 'channel_2']:
-        # Обновляем прогресс в Redis
-        redis_client.set(PROGRESS_KEY, json.dumps({
-            'status': 'in_progress',
-            'stage': stage
-        }))
-        
-        # Отправляем прогресс по WebSocket
-        ws.send(json.dumps({
-            'status': 'in_progress',
-            'stage': stage
-        }))
-        time.sleep(1)  # Имитация паузы для каждого этапа
-
-    # Завершение задачи
-    redis_client.set(PROGRESS_KEY, json.dumps({
-        'status': 'completed',
-        'message': 'Задача завершена.'
-    }))
-    ws.send(json.dumps({
-        'status': 'completed',
-        'message': 'Задача завершена.'
-    }))
-
-
-# WebSocket-обработчик
-@sockets.route('/progress')
-def progress_socket(ws):
-    task_id = None  # Задача, которую клиент будет отслеживать
+# WebSocket маршрут
+@sockets.route('/progress/<login>')
+def handle_socket(ws, login):
+    """Подключение пользователя к WebSocket для получения прогресса"""
+    from app.database.managers.user_manager import UserManager
+    # Проверка пользователя в базе данных по логину
+    db = UserManager()
+    user = db.get_user_id(login)
     
-    while True:
-        message = ws.receive()
-        if message:
-            data = json.loads(message)
-            task_id = data.get('task_id')  # Получаем идентификатор задачи от клиента
-            print(f"Received message: {data}")
-            
-            # Запускаем обработку задачи в отдельном потоке
-            threading.Thread(target=process_task, args=(ws, task_id)).start()
-            break  # После запуска задачи завершаем цикл приема сообщений"""
+    if user is None:
+        # Если пользователь не найден, закрываем соединение
+        ws.send(json.dumps({"status": "error", "message": "User not found"}))
+        ws.close()
+        return
+    
+    # Присваиваем user_id текущему WebSocket-соединению
+    ws.user_id = user
+    
+    # Добавляем WebSocket в список клиентов
+    if login not in clients:
+        clients[login] = []
+    
+    clients[login].append(ws)
+    
+    try:
+        # Ожидание сообщений от клиента, если нужно
+        while True:
+            message = ws.receive()
+            if message is None:
+                break
+    finally:
+        # Удаляем WebSocket-соединение при отключении
+        clients[login].remove(ws)
+        if not clients[login]:
+            del clients[login]

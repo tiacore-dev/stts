@@ -8,6 +8,7 @@ import logging
 import json
 from app.utils.db_get import transcribed_audio
 from service_registry import get_service
+from app.extensions.sockets.sockets import send_progress
 
 
 #socket = get_service('sockets')
@@ -28,11 +29,7 @@ def process_and_transcribe_audio_taks_1(file_record, user_id, audio_id, file_ext
     logger.info("Начало транскрибации аудио.", extra={'user_id': user_id})
     transcription = transcribe_audio(file_record, file_extension)
     transcription_id = db.add_transcription_with_id(transcription_id, user_id, transcription, audio_id, tokens=None)
-    """socket.send(json.dumps({
-        'status': 'completed',
-        'transcription_id': transcription_id,
-        'user_id': user_id
-    }))"""
+    send_progress(user_id, {'status': 'in_progress', 'stage': 'completed', 'transcription_id': transcription_id})
     return transcription
 
 @shared_task
@@ -46,12 +43,8 @@ def process_and_transcribe_audio_task_2(file_record, user_id, audio_id, file_ext
     # Выполняем транскрибацию для всего аудио
     logger.info("Начало транскрибации всего аудио.", extra={'user_id': user_id})
     transcriptions.append(transcribe_audio(file_record, file_extension))
-    """socket.send(json.dumps({
-        'status': 'in_progress',
-        'stage': 'main_audio_processed',
-        'transcription_id': transcription_id,
-        'user_id': user_id
-    }))"""
+    # Отправка обновления прогресса для канала 1
+    send_progress(user_id, {'status': 'in_progress', 'stage': 'main_audio_processed', 'transcription_id': transcription_id})
     # Стартовая отправка сообщения через WebSocket
     
     # Разделяем аудио на два канала
@@ -69,22 +62,11 @@ def process_and_transcribe_audio_task_2(file_record, user_id, audio_id, file_ext
     # Создаем задачу для транскрибации левого канала
     logger.info("Начало транскрибации левого канала.", extra={'user_id': user_id})
     transcriptions.append(transcribe_audio(channel1_bytes_value, file_extension))
-    # Прогресс (например, после завершения обработки канала 1)
-    """socket.send(json.dumps({
-        'status': 'in_progress',
-        'stage': 'channel_1_processed',
-        'transcription_id': transcription_id,
-        'user_id': user_id
-    }))"""
+    # Отправка обновления прогресса для канала 1
+    send_progress(user_id, {'status': 'in_progress', 'stage': 'channel_1_processed', 'transcription_id': transcription_id})
     transcriptions.append(transcribe_audio(channel2_bytes_value, file_extension))
-    # Прогресс (например, после завершения обработки канала 1)
     # Отправка обновления прогресса для канала 2
-    """socket.send(json.dumps({
-        'status': 'in_progress',
-        'stage': 'channel_2_processed',
-        'transcription_id': transcription_id,
-        'user_id': user_id
-    }))"""
+    send_progress(user_id, {'status': 'in_progress', 'stage': 'channel_2_processed', 'transcription_id': transcription_id})
 
     
     for i, transcription in enumerate(transcriptions):
@@ -97,15 +79,12 @@ def process_and_transcribe_audio_task_2(file_record, user_id, audio_id, file_ext
     # Анализируем текст и сохраняем транскрипции для пользователя
     logger.info("Составление диалога.", extra={'user_id': user_id})
     dialog, tokens_full = set_dialog(transcriptions[0], transcriptions[1], transcriptions[2], prompt)
+    # Отправка обновления прогресса 
+    send_progress(user_id, {'status': 'in_progress', 'stage': 'completed', 'transcription_id': transcription_id})
     transcription_id = db.add_transcription_with_id(transcription_id, user_id, dialog, audio_id, tokens_full)
     logger.info(f"Получена транскрипция с ID: {transcription_id}", extra={'user_id': user_id})
     # Завершение задачи
     return dialog 
-    """socket.send(json.dumps({
-        'status': 'completed',
-        'transcription_id': transcription_id,
-        'user_id': user_id
-    }))"""
-     
+    
 
 
