@@ -19,7 +19,7 @@ def process_and_upload_file_task(file_path, user_id, file_name_input, login):
     db = AudioFileManager()
     s3_manager = get_s3_manager()
     bucket_name = get_bucket_name()
-
+    
     file_extension = os.path.splitext(file_path)[1]
     full_file_name = f"{file_name_input}{file_extension}"
     s3_key = full_file_name.replace(' ', '_')
@@ -33,8 +33,6 @@ def process_and_upload_file_task(file_path, user_id, file_name_input, login):
         with open(file_path, 'rb') as file:
             s3_manager.upload_fileobj(file, bucket_name, audio_id + s3_key)
 
-        # Удаляем локальный файл после загрузки
-        os.remove(file_path)
 
         # Логируем успешную загрузку
         return {

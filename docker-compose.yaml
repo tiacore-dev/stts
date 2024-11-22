@@ -17,6 +17,7 @@ services:
     command: alembic upgrade head
     environment:
       - DATABASE_URL=${DATABASE_URL}
+      
     volumes:
       - .:/app
     networks:
@@ -30,6 +31,7 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=redis://redis:6379/0
+      - TEMP_DIR=/shared_temp
     depends_on:    
       redis:
         condition: service_healthy
@@ -51,6 +53,7 @@ services:
       - celery
     volumes:
       - .:/app
+      - ./shared_temp:/shared_temp
     networks:
       - stts_app_network
 
@@ -67,12 +70,14 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - HTTP_PROXY=
       - HTTPS_PROXY=
+      - TEMP_DIR=/shared_temp
     depends_on:
       - celery
       - alembic
         #condition: service_healthy
     volumes:
       - .:/app
+      - ./shared_temp:/shared_temp
     command: gunicorn -c gunicorn.conf.py --worker-class eventlet -w 1 run:app
     networks:
       - stts_app_network

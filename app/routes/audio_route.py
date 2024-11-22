@@ -6,6 +6,7 @@ import logging
 import tempfile
 from app.utils.upload_audio import process_and_upload_file
 import json
+import os
 
 
 # Получаем логгер по его имени
@@ -18,6 +19,7 @@ audio_bp = Blueprint('audio', __name__)
 def manage_audio():
     return render_template('manage_audio.html')
 
+TEMP_DIR = os.getenv('TEMP_DIR', '/tmp')  # '/tmp' по умолчанию
 
 @audio_bp.route('/audio/upload', methods=['POST'])
 @jwt_required()
@@ -43,15 +45,13 @@ def upload_audio():
 
     # Цикл по файлам и именам
     for file, file_name_input in zip(files, file_names):
-        # Сохраняем файл во временный файл
-        temp_file = tempfile.NamedTemporaryFile(delete=False)
-        temp_file_path = temp_file.name
+        with tempfile.NamedTemporaryFile(delete=False, dir=TEMP_DIR, suffix=".mp3") as temp_file:
+            temp_file.write(file.read())
+            temp_file_path = temp_file.name
 
-        # Сохраняем файл на диск
-        file.save(temp_file_path)
-        logger.info('Запускаем задачу')
-        # Генерируем задачу Celery с передачей пути к временному файлу
         task = process_and_upload_file_task.delay(temp_file_path, current_user['user_id'], file_name_input, user_login)
+
+
         logger.info(f'Задача с ID {task.id} запущена.')
 
         result.append({"file_name": file_name_input, "task_id": task.id})
