@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Создаем таблицу users
+    """# Создаем таблицу users
     op.create_table(
         'users',
         sa.Column('user_id', sa.String, primary_key=True, autoincrement=False),
@@ -100,11 +100,11 @@ def upgrade() -> None:
         sa.Column('user_id', sa.String(255), nullable=False),  # Изменено
         sa.Column('comment', sa.Text),
         sa.ForeignKeyConstraint(['user_id'], ['users.user_id'])  # Внешний ключ
-    )
+    )"""
 
 
 def downgrade() -> None:
-    # Удаляем таблицу logs
+    """# Удаляем таблицу logs
     op.drop_table('logs')
 
     # Удаляем таблицу transcriptions
@@ -124,3 +124,4 @@ def downgrade() -> None:
 
     # Удаляем таблицу analysis
     op.drop_table('analysis')
+"""
