@@ -30,18 +30,11 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=redis://redis:6379/0
-    depends_on:
+    depends_on:    
       redis:
         condition: service_healthy
-      - alembic
     volumes:
       - .:/app
-    #healthcheck:
-      #test: ["CMD", "celery", "-A", "celery_worker", "status"]
-      #interval: 30s
-      #timeout: 10s
-      #retries: 3
-      #start_period: 10s
     networks:
       - stts_app_network
 
@@ -97,8 +90,6 @@ services:
       - .:/app
 
 
-volumes:
-  postgres_data:
 
 networks:
   stts_app_network:
