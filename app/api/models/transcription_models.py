@@ -10,7 +10,7 @@ transcription_create_model_payload = Model('TranscriptionCreatePayload', {
 
 transcription_create_model_response = Model('TranscriptionCreateResponse', {
     'transcription_id': fields.String(required=True, description='ID получившейся транскрипции'),
-    'transcription_text': fields.String(required=True, description='Текст получившейся транскрипции'),
+    'task_id': fields.String(required=True, description='Текст получившейся транскрипции'),
 })
 
 transcription_model = Model('Transcription', {
