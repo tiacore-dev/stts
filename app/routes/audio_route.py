@@ -45,7 +45,7 @@ def upload_audio():
         # Передаем сам файл в функцию обработки
         #file, current_user['user_id'], file_name_input, user_login
         #'file_path', current_user['user_id'], file_name_input, user_login
-        task = process_and_upload_file_task.delay()
+        task = process_and_upload_file_task.apply_async()
         #audio_id = upload_result.get('audio_id')
 #upload_result
         result.append({"file_name": file_name_input, "task_id": task.id})
