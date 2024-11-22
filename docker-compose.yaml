@@ -53,7 +53,7 @@ services:
   celery:
     build: .
     command: >
-      celery -A celery_worker:celery worker --loglevel=info
+      celery -A celery_worker:celery worker --loglevel=debug
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=redis://redis:6379/0

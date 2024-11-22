@@ -3,7 +3,7 @@ import logging
 # Настройка логгера
 def setup_logger():
     logger = logging.getLogger('chatbot')  # Используем именованный логгер
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     # Проверяем, был ли уже настроен логгер (чтобы не добавлять обработчики повторно)
     if not logger.handlers:
