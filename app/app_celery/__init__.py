@@ -2,7 +2,7 @@
 
 from celery import Celery
 from config.config_celery import ConfigCelery
-
+from service_registry import register_service
 
 def create_celery_app(flask_app=None):
     # Создаем экземпляр Celery
@@ -27,7 +27,7 @@ def create_celery_app(flask_app=None):
         celery.Task = ContextTask
     # Автоматически обнаруживает задачи в модуле 'app_celery.tasks'
     #celery.autodiscover_tasks(['app.app_celery.tasks'])
-
+    register_service('celery', celery)
     # Явный импорт задач
     from app.app_celery.tasks.transcription_tasks import process_and_transcribe_audio_task, process_and_upload_file_task
 
