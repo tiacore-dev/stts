@@ -1,17 +1,17 @@
 # app_celery/__init__.py
 
 from celery import Celery
-from config import Config
+from config.config_celery import ConfigCelery
 
 
 def create_celery_app(flask_app=None):
     # Создаем экземпляр Celery
     celery = Celery(
         __name__,
-        broker=Config.CELERY_BROKER_URL,
-        backend=Config.CELERY_RESULT_BACKEND
+        broker=ConfigCelery.CELERY_BROKER_URL,
+        backend=ConfigCelery.CELERY_RESULT_BACKEND
     )
-    celery.conf.update(result_backend=Config.CELERY_RESULT_BACKEND)
+    celery.conf.update(result_backend=ConfigCelery.CELERY_RESULT_BACKEND)
 
     # Если передан flask_app, связываем конфигурации
     if flask_app:
