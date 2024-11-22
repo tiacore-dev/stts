@@ -16,7 +16,7 @@ logger = logging.getLogger('chatbot')
 
 logger.info("Task module loaded and registered")
 #audio_id, user_id, login
-@celery.task
+@celery.task(name='process_and_transcribe_audio_task')
 def process_and_transcribe_audio_task():
     logger.info('success')
     print('success')

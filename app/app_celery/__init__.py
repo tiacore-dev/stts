@@ -27,5 +27,7 @@ def create_celery_app(flask_app=None):
         celery.Task = ContextTask
     # Автоматически обнаруживает задачи в модуле 'app_celery.tasks'
     celery.autodiscover_tasks(['app.app_celery.tasks'])
-    
+    celery.conf.update(
+            worker_hijack_root_logger=False
+        )
     return celery

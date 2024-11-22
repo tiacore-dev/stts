@@ -12,7 +12,7 @@ celery = create_celery_app()
 # Получаем логгер по его имени
 logger = logging.getLogger('chatbot')
 
-@celery.task
+@celery.task(name='process_and_upload_file_task')
 def process_and_upload_file_task():
     logger.info('success')
     print('success')
