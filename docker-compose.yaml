@@ -36,10 +36,11 @@ services:
     volumes:
       - .:/app
     healthcheck:
-      test: ["CMD-SHELL", "celery -A celery_worker inspect ping"]
+      test: ["CMD", "celery", "-A", "celery_worker", "status"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 10s
     networks:
       - stts_app_network
 
