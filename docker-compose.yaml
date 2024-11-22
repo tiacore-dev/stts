@@ -45,8 +45,7 @@ services:
       - stts_app_network
 
   flower:
-    image: mher/flower:latest
-    command: flower --broker=redis://redis:6379
+    command: celery -A celery_worker flower --broker=redis://redis:6379
     ports:
       - "5555:5555"
     depends_on:
