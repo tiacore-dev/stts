@@ -36,6 +36,7 @@ class TranscriptionResource(Resource):
     @transcription_ns.expect(transcription_create_model_payload)
     @transcription_ns.marshal_with(transcription_create_model_response)
     def post(self):
+        from app_celery.tasks import process_and_transcribe_audio_taks_1, process_and_transcribe_audio_task_2
         logger.info(f"Вход в метод TranscriptionResource.post ")
         from app.database.managers.audio_manager import AudioFileManager
         db = AudioFileManager()
@@ -97,14 +98,14 @@ class TranscriptionResource(Resource):
         logger.info(f"Полученное число каналов: {channels}")
         
         if channels == 1:
-            text = process_and_transcribe_audio_1(audio_bytes, user_id, audio_id, file_extension, transcription_id)
+            task = process_and_transcribe_audio_taks_1.delay(audio_bytes, user_id, audio_id, file_extension, transcription_id)
         elif channels == 2:
-            text = process_and_transcribe_audio_2(audio_bytes, user_id, audio_id, file_extension, transcription_id, prompt)
+            task = process_and_transcribe_audio_task_2.delay(audio_bytes, user_id, audio_id, file_extension, transcription_id, prompt)
         else:
             return jsonify({"error": "Invalid number of channels"}), 400
         # Возвращаем ID транскрипции и результат
         return {
-            'transcription_id': transcription_id, 'transcription_text': text
+            'transcription_id': transcription_id, 'task_id': task.id
         }
 
 
