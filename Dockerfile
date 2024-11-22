@@ -32,10 +32,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Устанавливаем Gunicorn
 RUN pip install gunicorn
 
-COPY wait-for-it.sh /usr/local/bin/wait-for-it
-RUN chmod +x /usr/local/bin/wait-for-it
-
-
 # Копируем сертификаты в контейнер (предполагается, что они находятся в папке certs на хосте)
 COPY ./certs /app/certs
 

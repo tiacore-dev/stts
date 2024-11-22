@@ -17,11 +17,15 @@ services:
     command: bash -c "alembic upgrade head"
     environment:
       - DATABASE_URL=${DATABASE_URL}
-    depends_on:
     volumes:
       - .:/app
     networks:
       - stts_app_network
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'SELECT 1' | psql ${DATABASE_URL}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   web:
     tty: true
@@ -37,30 +41,43 @@ services:
       - HTTP_PROXY=
       - HTTPS_PROXY=
     depends_on:
+      alembic:
+        condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
       - .:/app
-    command: >
-      bash -c gunicorn -c gunicorn.conf.py --worker-class eventlet -w 1 run:app"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${FLASK_PORT} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: gunicorn -c gunicorn.conf.py --worker-class eventlet -w 1 run:app
     networks:
       - stts_app_network
 
-
-
   celery:
     build: .
-    command: bash -c "celery -A celery_worker:celery worker --loglevel=info"
+    command: >
+      celery -A celery_worker:celery worker --loglevel=info
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=redis://redis:6379/0
     depends_on:
+      web:
+        condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
       - .:/app
+    healthcheck:
+      test: ["CMD-SHELL", "echo PING | redis-cli -h redis"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - stts_app_network
+
 
 
 volumes:
