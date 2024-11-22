@@ -44,6 +44,17 @@ services:
     networks:
       - stts_app_network
 
+  flower:
+    image: mher/flower:latest
+    command: flower --broker=redis://redis:6379
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - celery
+    networks:
+      - your_network
+
   web:
     tty: true
     stdin_open: true
