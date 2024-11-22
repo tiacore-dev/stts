@@ -57,7 +57,8 @@ def process_and_transcribe_audio_task(audio_id, user_id, login):
 
     # Сбор результатов транскрибации
     transcriptions = [t if not isinstance(t, Exception) else None for t in tasks]
-    dialog, tokens_full = set_dialog(*transcriptions)
+    prompt = None
+    dialog, tokens_full = set_dialog(*transcriptions, prompt)
 
     # Добавление транскрипции в базу данных
     transcription_id = db.add_transcription(user_id, dialog, audio_id, tokens_full)
