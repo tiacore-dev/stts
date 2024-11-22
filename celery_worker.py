@@ -3,7 +3,7 @@
 from app import create_app
 from app.app_celery import create_celery_app
 from service_registry import get_service
-#flask_app, _ = create_app()  # Создаем экземпляр Flask
+flask_app, _ = create_app()  # Создаем экземпляр Flask
 #celery = create_celery_app(flask_app)  # Создаем и связываем экземпляр Celery
 celery = get_service('celery')
 
