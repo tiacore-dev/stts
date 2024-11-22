@@ -21,11 +21,7 @@ services:
       - .:/app
     networks:
       - stts_app_network
-    healthcheck:
-      test: ["CMD-SHELL", "echo 'SELECT 1' | psql ${DATABASE_URL}"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+
 
   web:
     tty: true
@@ -41,8 +37,6 @@ services:
       - HTTP_PROXY=
       - HTTPS_PROXY=
     depends_on:
-      alembic:
-        condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
